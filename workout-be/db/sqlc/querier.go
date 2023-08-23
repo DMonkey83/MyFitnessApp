@@ -41,7 +41,7 @@ type Querier interface {
 	GetRep(ctx context.Context, repID int64) (Rep, error)
 	GetSet(ctx context.Context, setID int64) (Set, error)
 	GetUser(ctx context.Context, userID int64) (GetUserRow, error)
-	GetUserProfile(ctx context.Context, userID int64) (GetUserProfileRow, error)
+	GetUserProfile(ctx context.Context, userID int64) (Userprofile, error)
 	GetWeightEntry(ctx context.Context, weightEntryID int64) (Weightentry, error)
 	GetWorkout(ctx context.Context, workoutID int64) (Workout, error)
 	GetWorkoutprogram(ctx context.Context, programID int64) (Workoutprogram, error)

@@ -14,7 +14,7 @@ import (
 const createUserProfile = `-- name: CreateUserProfile :one
 INSERT INTO UserProfile (user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit, created_at
+RETURNING user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit
 `
 
 type CreateUserProfileParams struct {
@@ -47,7 +47,6 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 		&i.HeightCm,
 		&i.HeightFtIn,
 		&i.PreferredUnit,
-		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -68,20 +67,9 @@ FROM UserProfile
 WHERE user_id = $1
 `
 
-type GetUserProfileRow struct {
-	UserProfileID int64       `json:"user_profile_id"`
-	UserID        int64       `json:"user_id"`
-	FullName      string      `json:"full_name"`
-	Age           int32       `json:"age"`
-	Gender        string      `json:"gender"`
-	HeightCm      float64     `json:"height_cm"`
-	HeightFtIn    pgtype.Text `json:"height_ft_in"`
-	PreferredUnit Weightunit  `json:"preferred_unit"`
-}
-
-func (q *Queries) GetUserProfile(ctx context.Context, userID int64) (GetUserProfileRow, error) {
+func (q *Queries) GetUserProfile(ctx context.Context, userID int64) (Userprofile, error) {
 	row := q.db.QueryRow(ctx, getUserProfile, userID)
-	var i GetUserProfileRow
+	var i Userprofile
 	err := row.Scan(
 		&i.UserProfileID,
 		&i.UserID,
@@ -99,7 +87,7 @@ const updateUserProfile = `-- name: UpdateUserProfile :one
 UPDATE UserProfile
 SET full_name = $2, age = $3, gender = $4, height_cm = $5, height_ft_in = $6, preferred_unit = $7
 WHERE user_id = $1
-RETURNING user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit, created_at
+RETURNING user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit
 `
 
 type UpdateUserProfileParams struct {
@@ -132,7 +120,6 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfilePa
 		&i.HeightCm,
 		&i.HeightFtIn,
 		&i.PreferredUnit,
-		&i.CreatedAt,
 	)
 	return i, err
 }

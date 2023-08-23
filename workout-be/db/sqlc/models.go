@@ -208,23 +208,21 @@ type Set struct {
 }
 
 type User struct {
-	UserID       int64            `json:"user_id"`
-	Username     string           `json:"username"`
-	Email        string           `json:"email"`
-	PasswordHash string           `json:"password_hash"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	UserID       int64  `json:"user_id"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
 }
 
 type Userprofile struct {
-	UserProfileID int64            `json:"user_profile_id"`
-	UserID        int64            `json:"user_id"`
-	FullName      string           `json:"full_name"`
-	Age           int32            `json:"age"`
-	Gender        string           `json:"gender"`
-	HeightCm      float64          `json:"height_cm"`
-	HeightFtIn    pgtype.Text      `json:"height_ft_in"`
-	PreferredUnit Weightunit       `json:"preferred_unit"`
-	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UserProfileID int64       `json:"user_profile_id"`
+	UserID        int64       `json:"user_id"`
+	FullName      string      `json:"full_name"`
+	Age           int32       `json:"age"`
+	Gender        string      `json:"gender"`
+	HeightCm      float64     `json:"height_cm"`
+	HeightFtIn    pgtype.Text `json:"height_ft_in"`
+	PreferredUnit Weightunit  `json:"preferred_unit"`
 }
 
 type Weightentry struct {
