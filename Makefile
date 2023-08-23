@@ -8,6 +8,6 @@ sqlc:
 	sqlc generate
 
 test: 
-	go test -v -cover ./...
+	cd workout-be && go test -v -cover ./...
 
 .PHONY: migrateup migratedown sqlc test

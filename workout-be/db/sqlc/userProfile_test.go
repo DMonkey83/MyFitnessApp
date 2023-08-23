@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
@@ -79,6 +78,6 @@ func TestDeleteUserProfile(t *testing.T) {
 
 	user2, err := testStore.GetUserProfile(context.Background(), user1.UserID)
 	require.Error(t, err)
-	require.EqualError(t, err, sql.ErrNoRows.Error())
+	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, user2)
 }
