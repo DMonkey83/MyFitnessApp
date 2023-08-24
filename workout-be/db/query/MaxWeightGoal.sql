@@ -1,11 +1,11 @@
 
 -- name: CreateMaxWeightGoal :one
-INSERT INTO MaxWeightGoal (user_id, exercise_id, goal_weight, notes)
+INSERT INTO MaxWeightGoal (username, exercise_id, goal_weight, notes)
 VALUES ($1, $2, $3, $4)
 RETURNING goal_id;
 
 -- name: GetMaxWeightGoal :one
-SELECT goal_id, user_id, exercise_id, goal_weight, notes
+SELECT goal_id, username, exercise_id, goal_weight, notes
 FROM MaxWeightGoal
 WHERE goal_id = $1;
 
@@ -15,9 +15,9 @@ WHERE goal_id = $1;
 
 -- name: UpdateMaxWeightGoal :one
 UPDATE MaxWeightGoal
-SET user_id = $2, exercise_id = $3, goal_weight = $4, notes = $5
+SET exercise_id = $2, goal_weight = $3, notes = $4
 WHERE goal_id = $1
-RETURNING goal_id, user_id, exercise_id, goal_weight, notes;
+RETURNING goal_id, username, exercise_id, goal_weight, notes;
 
 -- name: ListMaxWeightGoals :many
 SELECT goal_weight, notes

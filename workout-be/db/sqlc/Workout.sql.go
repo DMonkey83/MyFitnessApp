@@ -12,13 +12,13 @@ import (
 )
 
 const createWorkout = `-- name: CreateWorkout :one
-INSERT INTO Workout (user_id, workout_date, workout_duration, notes)
+INSERT INTO Workout (username, workout_date, workout_duration, notes)
 VALUES ($1, $2, $3, $4)
 RETURNING workout_id
 `
 
 type CreateWorkoutParams struct {
-	UserID          int64           `json:"user_id"`
+	Username        string          `json:"username"`
 	WorkoutDate     pgtype.Date     `json:"workout_date"`
 	WorkoutDuration pgtype.Interval `json:"workout_duration"`
 	Notes           pgtype.Text     `json:"notes"`
@@ -26,7 +26,7 @@ type CreateWorkoutParams struct {
 
 func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (int64, error) {
 	row := q.db.QueryRow(ctx, createWorkout,
-		arg.UserID,
+		arg.Username,
 		arg.WorkoutDate,
 		arg.WorkoutDuration,
 		arg.Notes,
@@ -47,7 +47,7 @@ func (q *Queries) DeleteWorkout(ctx context.Context, workoutID int64) error {
 }
 
 const getWorkout = `-- name: GetWorkout :one
-SELECT workout_id, user_id, workout_date, workout_duration, notes
+SELECT workout_id, username, workout_date, workout_duration, notes
 FROM Workout
 WHERE workout_id = $1
 `
@@ -57,7 +57,7 @@ func (q *Queries) GetWorkout(ctx context.Context, workoutID int64) (Workout, err
 	var i Workout
 	err := row.Scan(
 		&i.WorkoutID,
-		&i.UserID,
+		&i.Username,
 		&i.WorkoutDate,
 		&i.WorkoutDuration,
 		&i.Notes,
@@ -112,14 +112,14 @@ func (q *Queries) ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]L
 
 const updateWorkout = `-- name: UpdateWorkout :one
 UPDATE Workout
-SET user_id = $2, workout_date = $3, workout_duration = $4, notes = $5
+SET username = $2, workout_date = $3, workout_duration = $4, notes = $5
 WHERE workout_id = $1
-RETURNING workout_id, user_id, workout_date, workout_duration, notes
+RETURNING workout_id, username, workout_date, workout_duration, notes
 `
 
 type UpdateWorkoutParams struct {
 	WorkoutID       int64           `json:"workout_id"`
-	UserID          int64           `json:"user_id"`
+	Username        string          `json:"username"`
 	WorkoutDate     pgtype.Date     `json:"workout_date"`
 	WorkoutDuration pgtype.Interval `json:"workout_duration"`
 	Notes           pgtype.Text     `json:"notes"`
@@ -128,7 +128,7 @@ type UpdateWorkoutParams struct {
 func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) (Workout, error) {
 	row := q.db.QueryRow(ctx, updateWorkout,
 		arg.WorkoutID,
-		arg.UserID,
+		arg.Username,
 		arg.WorkoutDate,
 		arg.WorkoutDuration,
 		arg.Notes,
@@ -136,7 +136,7 @@ func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) (W
 	var i Workout
 	err := row.Scan(
 		&i.WorkoutID,
-		&i.UserID,
+		&i.Username,
 		&i.WorkoutDate,
 		&i.WorkoutDuration,
 		&i.Notes,

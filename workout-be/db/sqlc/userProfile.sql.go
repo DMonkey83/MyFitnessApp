@@ -12,13 +12,13 @@ import (
 )
 
 const createUserProfile = `-- name: CreateUserProfile :one
-INSERT INTO UserProfile (user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit)
+INSERT INTO UserProfile (username, full_name, age, gender, height_cm, height_ft_in, preferred_unit)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit
+RETURNING user_profile_id, username, full_name, age, gender, height_cm, height_ft_in, preferred_unit
 `
 
 type CreateUserProfileParams struct {
-	UserID        int64       `json:"user_id"`
+	Username      string      `json:"username"`
 	FullName      string      `json:"full_name"`
 	Age           int32       `json:"age"`
 	Gender        string      `json:"gender"`
@@ -29,7 +29,7 @@ type CreateUserProfileParams struct {
 
 func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (Userprofile, error) {
 	row := q.db.QueryRow(ctx, createUserProfile,
-		arg.UserID,
+		arg.Username,
 		arg.FullName,
 		arg.Age,
 		arg.Gender,
@@ -40,7 +40,7 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 	var i Userprofile
 	err := row.Scan(
 		&i.UserProfileID,
-		&i.UserID,
+		&i.Username,
 		&i.FullName,
 		&i.Age,
 		&i.Gender,
@@ -53,26 +53,26 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 
 const deleteUserProfile = `-- name: DeleteUserProfile :exec
 DELETE FROM UserProfile
-WHERE user_id = $1
+WHERE username = $1
 `
 
-func (q *Queries) DeleteUserProfile(ctx context.Context, userID int64) error {
-	_, err := q.db.Exec(ctx, deleteUserProfile, userID)
+func (q *Queries) DeleteUserProfile(ctx context.Context, username string) error {
+	_, err := q.db.Exec(ctx, deleteUserProfile, username)
 	return err
 }
 
 const getUserProfile = `-- name: GetUserProfile :one
-SELECT user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit
+SELECT user_profile_id, username, full_name, age, gender, height_cm, height_ft_in, preferred_unit
 FROM UserProfile
-WHERE user_id = $1
+WHERE username = $1
 `
 
-func (q *Queries) GetUserProfile(ctx context.Context, userID int64) (Userprofile, error) {
-	row := q.db.QueryRow(ctx, getUserProfile, userID)
+func (q *Queries) GetUserProfile(ctx context.Context, username string) (Userprofile, error) {
+	row := q.db.QueryRow(ctx, getUserProfile, username)
 	var i Userprofile
 	err := row.Scan(
 		&i.UserProfileID,
-		&i.UserID,
+		&i.Username,
 		&i.FullName,
 		&i.Age,
 		&i.Gender,
@@ -86,12 +86,12 @@ func (q *Queries) GetUserProfile(ctx context.Context, userID int64) (Userprofile
 const updateUserProfile = `-- name: UpdateUserProfile :one
 UPDATE UserProfile
 SET full_name = $2, age = $3, gender = $4, height_cm = $5, height_ft_in = $6, preferred_unit = $7
-WHERE user_id = $1
-RETURNING user_profile_id, user_id, full_name, age, gender, height_cm, height_ft_in, preferred_unit
+WHERE username = $1
+RETURNING user_profile_id, username, full_name, age, gender, height_cm, height_ft_in, preferred_unit
 `
 
 type UpdateUserProfileParams struct {
-	UserID        int64       `json:"user_id"`
+	Username      string      `json:"username"`
 	FullName      string      `json:"full_name"`
 	Age           int32       `json:"age"`
 	Gender        string      `json:"gender"`
@@ -102,7 +102,7 @@ type UpdateUserProfileParams struct {
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (Userprofile, error) {
 	row := q.db.QueryRow(ctx, updateUserProfile,
-		arg.UserID,
+		arg.Username,
 		arg.FullName,
 		arg.Age,
 		arg.Gender,
@@ -113,7 +113,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfilePa
 	var i Userprofile
 	err := row.Scan(
 		&i.UserProfileID,
-		&i.UserID,
+		&i.Username,
 		&i.FullName,
 		&i.Age,
 		&i.Gender,

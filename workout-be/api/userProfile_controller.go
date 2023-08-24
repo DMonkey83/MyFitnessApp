@@ -9,7 +9,7 @@ import (
 )
 
 type createUserProfileRequest struct {
-	UserID        int64         `json:"user_id" binding:"required"`
+	Username      string        `json:"username" binding:"required"`
 	FullName      string        `json:"full_name" binding:"required"`
 	Age           int32         `json:"age" binding:"required"`
 	Gender        string        `json:"gender" binding:"required,oneof=female male"`
@@ -19,7 +19,7 @@ type createUserProfileRequest struct {
 }
 
 type getUserProfileRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+	Username string `uri:"username" binding:"required,min=1"`
 }
 
 func (server *Server) createUserProfile(ctx *gin.Context) {
@@ -30,7 +30,7 @@ func (server *Server) createUserProfile(ctx *gin.Context) {
 	}
 
 	arg := db.CreateUserProfileParams{
-		UserID:        req.UserID,
+		Username:      req.Username,
 		FullName:      req.FullName,
 		Age:           req.Age,
 		Gender:        req.Gender,
@@ -41,6 +41,11 @@ func (server *Server) createUserProfile(ctx *gin.Context) {
 	userProfile, err := server.store.CreateUserProfile(ctx, arg)
 
 	if err != nil {
+		errorCode := db.ErrorCode(err)
+		if errorCode == db.ForeignKeyViolation || errorCode == db.UniqueViolation {
+			ctx.JSON(http.StatusForbidden, ErrorResponse(err))
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
@@ -55,7 +60,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		return
 	}
 
-	userProfile, err := server.store.GetUserProfile(ctx, req.ID)
+	userProfile, err := server.store.GetUserProfile(ctx, req.Username)
 	if err != nil {
 		if err == db.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, ErrorResponse(err))

@@ -12,13 +12,13 @@ import (
 )
 
 const createWeightEntry = `-- name: CreateWeightEntry :one
-INSERT INTO WeightEntry (user_id, entry_date, weight_kg, weight_lb, notes)
+INSERT INTO WeightEntry (username, entry_date, weight_kg, weight_lb, notes)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING weight_entry_id
 `
 
 type CreateWeightEntryParams struct {
-	UserID    int64         `json:"user_id"`
+	Username  string        `json:"username"`
 	EntryDate pgtype.Date   `json:"entry_date"`
 	WeightKg  pgtype.Float8 `json:"weight_kg"`
 	WeightLb  pgtype.Float8 `json:"weight_lb"`
@@ -27,7 +27,7 @@ type CreateWeightEntryParams struct {
 
 func (q *Queries) CreateWeightEntry(ctx context.Context, arg CreateWeightEntryParams) (int64, error) {
 	row := q.db.QueryRow(ctx, createWeightEntry,
-		arg.UserID,
+		arg.Username,
 		arg.EntryDate,
 		arg.WeightKg,
 		arg.WeightLb,
@@ -49,7 +49,7 @@ func (q *Queries) DeleteWeightEntry(ctx context.Context, weightEntryID int64) er
 }
 
 const getWeightEntry = `-- name: GetWeightEntry :one
-SELECT weight_entry_id, user_id, entry_date, weight_kg, weight_lb, notes
+SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
 FROM WeightEntry
 WHERE weight_entry_id = $1
 `
@@ -59,7 +59,7 @@ func (q *Queries) GetWeightEntry(ctx context.Context, weightEntryID int64) (Weig
 	var i Weightentry
 	err := row.Scan(
 		&i.WeightEntryID,
-		&i.UserID,
+		&i.Username,
 		&i.EntryDate,
 		&i.WeightKg,
 		&i.WeightLb,
@@ -115,14 +115,14 @@ func (q *Queries) ListWeightEntries(ctx context.Context, arg ListWeightEntriesPa
 
 const updateWeightEntry = `-- name: UpdateWeightEntry :one
 UPDATE WeightEntry
-SET user_id = $2, entry_date = $3, weight_kg = $4, weight_lb = $5, notes = $6
+SET username = $2, entry_date = $3, weight_kg = $4, weight_lb = $5, notes = $6
 WHERE weight_entry_id = $1
-RETURNING weight_entry_id, user_id, entry_date, weight_kg, weight_lb, notes
+RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
 `
 
 type UpdateWeightEntryParams struct {
 	WeightEntryID int64         `json:"weight_entry_id"`
-	UserID        int64         `json:"user_id"`
+	Username      string        `json:"username"`
 	EntryDate     pgtype.Date   `json:"entry_date"`
 	WeightKg      pgtype.Float8 `json:"weight_kg"`
 	WeightLb      pgtype.Float8 `json:"weight_lb"`
@@ -132,7 +132,7 @@ type UpdateWeightEntryParams struct {
 func (q *Queries) UpdateWeightEntry(ctx context.Context, arg UpdateWeightEntryParams) (Weightentry, error) {
 	row := q.db.QueryRow(ctx, updateWeightEntry,
 		arg.WeightEntryID,
-		arg.UserID,
+		arg.Username,
 		arg.EntryDate,
 		arg.WeightKg,
 		arg.WeightLb,
@@ -141,7 +141,7 @@ func (q *Queries) UpdateWeightEntry(ctx context.Context, arg UpdateWeightEntryPa
 	var i Weightentry
 	err := row.Scan(
 		&i.WeightEntryID,
-		&i.UserID,
+		&i.Username,
 		&i.EntryDate,
 		&i.WeightKg,
 		&i.WeightLb,

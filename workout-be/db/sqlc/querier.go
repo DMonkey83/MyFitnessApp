@@ -27,8 +27,8 @@ type Querier interface {
 	DeleteMuscleGroup(ctx context.Context, muscleGroupID int64) error
 	DeleteRep(ctx context.Context, repID int64) error
 	DeleteSet(ctx context.Context, setID int64) error
-	DeleteUser(ctx context.Context, userID int64) error
-	DeleteUserProfile(ctx context.Context, userID int64) error
+	DeleteUser(ctx context.Context, username string) error
+	DeleteUserProfile(ctx context.Context, username string) error
 	DeleteWeightEntry(ctx context.Context, weightEntryID int64) error
 	DeleteWeightRepGoal(ctx context.Context, goalID int64) error
 	DeleteWorkout(ctx context.Context, workoutID int64) error
@@ -40,8 +40,8 @@ type Querier interface {
 	GetMuscleGroup(ctx context.Context, muscleGroupID int64) (Musclegroup, error)
 	GetRep(ctx context.Context, repID int64) (Rep, error)
 	GetSet(ctx context.Context, setID int64) (Set, error)
-	GetUser(ctx context.Context, userID int64) (GetUserRow, error)
-	GetUserProfile(ctx context.Context, userID int64) (Userprofile, error)
+	GetUser(ctx context.Context, username string) (User, error)
+	GetUserProfile(ctx context.Context, username string) (Userprofile, error)
 	GetWeightEntry(ctx context.Context, weightEntryID int64) (Weightentry, error)
 	GetWorkout(ctx context.Context, workoutID int64) (Workout, error)
 	GetWorkoutprogram(ctx context.Context, programID int64) (Workoutprogram, error)
@@ -52,7 +52,6 @@ type Querier interface {
 	ListMuscleGroups(ctx context.Context, arg ListMuscleGroupsParams) ([]Musclegroup, error)
 	ListReps(ctx context.Context, arg ListRepsParams) ([]ListRepsRow, error)
 	ListSets(ctx context.Context, arg ListSetsParams) ([]ListSetsRow, error)
-	ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error)
 	ListWeightEntries(ctx context.Context, arg ListWeightEntriesParams) ([]ListWeightEntriesRow, error)
 	ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogramsParams) ([]ListWorkoutprogramsRow, error)
 	ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]ListWorkoutsRow, error)

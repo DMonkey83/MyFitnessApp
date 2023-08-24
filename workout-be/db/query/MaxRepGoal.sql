@@ -1,11 +1,11 @@
 
 -- name: CreateMaxRepGoal :one
-INSERT INTO MaxRepGoal (user_id, exercise_id, goal_reps, notes)
+INSERT INTO MaxRepGoal (username, exercise_id, goal_reps, notes)
 VALUES ($1, $2, $3, $4)
 RETURNING goal_id;
 
 -- name: GetMaxRepGoal :one
-SELECT goal_id, user_id, exercise_id, goal_reps, notes
+SELECT goal_id, username, exercise_id, goal_reps, notes
 FROM MaxRepGoal
 WHERE goal_id = $1;
 
@@ -15,9 +15,9 @@ WHERE goal_id = $1;
 
 -- name: UpdateMaxRepGoal :one
 UPDATE MaxRepGoal
-SET user_id = $2, exercise_id = $3, goal_reps = $4, notes = $5
+SET exercise_id = $2, goal_reps = $3, notes = $3
 WHERE goal_id = $1
-RETURNING goal_id, user_id, exercise_id, goal_reps, notes;
+RETURNING goal_id, username, exercise_id, goal_reps, notes;
 
 -- name: ListMaxRepGoals :many
 SELECT goal_reps, notes

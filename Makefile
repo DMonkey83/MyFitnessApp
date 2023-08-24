@@ -5,7 +5,7 @@ migratedown:
 	migrate -path db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose down
 
 sqlc:
-	sqlc generate
+	cd workout-be && sqlc generate
 
 test: 
 	cd workout-be && go test -v -cover ./...

@@ -12,13 +12,13 @@ import (
 )
 
 const createMaxWeightGoal = `-- name: CreateMaxWeightGoal :one
-INSERT INTO MaxWeightGoal (user_id, exercise_id, goal_weight, notes)
+INSERT INTO MaxWeightGoal (username, exercise_id, goal_weight, notes)
 VALUES ($1, $2, $3, $4)
 RETURNING goal_id
 `
 
 type CreateMaxWeightGoalParams struct {
-	UserID     int64       `json:"user_id"`
+	Username   string      `json:"username"`
 	ExerciseID int64       `json:"exercise_id"`
 	GoalWeight float64     `json:"goal_weight"`
 	Notes      pgtype.Text `json:"notes"`
@@ -26,7 +26,7 @@ type CreateMaxWeightGoalParams struct {
 
 func (q *Queries) CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (int64, error) {
 	row := q.db.QueryRow(ctx, createMaxWeightGoal,
-		arg.UserID,
+		arg.Username,
 		arg.ExerciseID,
 		arg.GoalWeight,
 		arg.Notes,
@@ -47,7 +47,7 @@ func (q *Queries) DeleteWeightRepGoal(ctx context.Context, goalID int64) error {
 }
 
 const getMaxWeightGoal = `-- name: GetMaxWeightGoal :one
-SELECT goal_id, user_id, exercise_id, goal_weight, notes
+SELECT goal_id, username, exercise_id, goal_weight, notes
 FROM MaxWeightGoal
 WHERE goal_id = $1
 `
@@ -57,7 +57,7 @@ func (q *Queries) GetMaxWeightGoal(ctx context.Context, goalID int64) (Maxweight
 	var i Maxweightgoal
 	err := row.Scan(
 		&i.GoalID,
-		&i.UserID,
+		&i.Username,
 		&i.ExerciseID,
 		&i.GoalWeight,
 		&i.Notes,
@@ -105,14 +105,13 @@ func (q *Queries) ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoals
 
 const updateMaxWeightGoal = `-- name: UpdateMaxWeightGoal :one
 UPDATE MaxWeightGoal
-SET user_id = $2, exercise_id = $3, goal_weight = $4, notes = $5
+SET exercise_id = $2, goal_weight = $3, notes = $4
 WHERE goal_id = $1
-RETURNING goal_id, user_id, exercise_id, goal_weight, notes
+RETURNING goal_id, username, exercise_id, goal_weight, notes
 `
 
 type UpdateMaxWeightGoalParams struct {
 	GoalID     int64       `json:"goal_id"`
-	UserID     int64       `json:"user_id"`
 	ExerciseID int64       `json:"exercise_id"`
 	GoalWeight float64     `json:"goal_weight"`
 	Notes      pgtype.Text `json:"notes"`
@@ -121,7 +120,6 @@ type UpdateMaxWeightGoalParams struct {
 func (q *Queries) UpdateMaxWeightGoal(ctx context.Context, arg UpdateMaxWeightGoalParams) (Maxweightgoal, error) {
 	row := q.db.QueryRow(ctx, updateMaxWeightGoal,
 		arg.GoalID,
-		arg.UserID,
 		arg.ExerciseID,
 		arg.GoalWeight,
 		arg.Notes,
@@ -129,7 +127,7 @@ func (q *Queries) UpdateMaxWeightGoal(ctx context.Context, arg UpdateMaxWeightGo
 	var i Maxweightgoal
 	err := row.Scan(
 		&i.GoalID,
-		&i.UserID,
+		&i.Username,
 		&i.ExerciseID,
 		&i.GoalWeight,
 		&i.Notes,

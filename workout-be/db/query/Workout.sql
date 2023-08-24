@@ -1,11 +1,11 @@
 
 -- name: CreateWorkout :one
-INSERT INTO Workout (user_id, workout_date, workout_duration, notes)
+INSERT INTO Workout (username, workout_date, workout_duration, notes)
 VALUES ($1, $2, $3, $4)
 RETURNING workout_id;
 
 -- name: GetWorkout :one
-SELECT workout_id, user_id, workout_date, workout_duration, notes
+SELECT workout_id, username, workout_date, workout_duration, notes
 FROM Workout
 WHERE workout_id = $1;
 
@@ -15,9 +15,9 @@ WHERE workout_id = $1;
 
 -- name: UpdateWorkout :one
 UPDATE Workout
-SET user_id = $2, workout_date = $3, workout_duration = $4, notes = $5
+SET username = $2, workout_date = $3, workout_duration = $4, notes = $5
 WHERE workout_id = $1
-RETURNING workout_id, user_id, workout_date, workout_duration, notes;
+RETURNING workout_id, username, workout_date, workout_duration, notes;
 
 -- name: ListWorkouts :many
 SELECT workout_id, workout_date, workout_duration, notes

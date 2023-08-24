@@ -27,16 +27,16 @@ CREATE TYPE muscle_group_enum AS ENUM (
 
 -- User Table
 CREATE TABLE IF NOT EXISTS "User" (
-    user_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
+    password_hash VARCHAR(255) NOT NULL,
+    password_changed_at timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00z'
 );
 
 -- UserProfile Table
 CREATE TABLE IF NOT EXISTS UserProfile (
     user_profile_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES "User"(user_id) UNIQUE NOT NULL,
+    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     age INT NOT NULL,
     gender VARCHAR(10) NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS Exercise (
 -- Workout Table
 CREATE TABLE IF NOT EXISTS Workout (
     workout_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES "User"(user_id) NOT NULL,
+    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
     workout_date DATE NOT NULL,
     workout_duration INTERVAL,
     notes TEXT
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS Rep (
 -- WorkoutProgram Table
 CREATE TABLE IF NOT EXISTS WorkoutProgram (
     program_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES "User"(user_id) NOT NULL,
+    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
     program_name VARCHAR(255) NOT NULL,
     description TEXT
 );
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS ProgramWorkout (
 -- WeightEntry Table
 CREATE TABLE IF NOT EXISTS WeightEntry (
     weight_entry_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES "User"(user_id) NOT NULL,
+    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
     entry_date DATE NOT NULL,
     weight_kg FLOAT,
     weight_lb FLOAT,
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS WeightEntry (
 -- MaxRepGoal Table
 CREATE TABLE IF NOT EXISTS MaxRepGoal (
     goal_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES "User"(user_id) NOT NULL,
+    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
     exercise_id BIGINT REFERENCES Exercise(exercise_id) NOT NULL,
     goal_reps INT NOT NULL,
     notes TEXT
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS MaxRepGoal (
 -- MaxWeightGoal Table
 CREATE TABLE IF NOT EXISTS MaxWeightGoal (
     goal_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES "User"(user_id) NOT NULL,
+    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
     exercise_id BIGINT REFERENCES Exercise(exercise_id) NOT NULL,
     goal_weight FLOAT NOT NULL,
     notes TEXT

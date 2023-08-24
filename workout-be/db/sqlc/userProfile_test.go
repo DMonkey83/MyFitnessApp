@@ -12,7 +12,7 @@ func CreateRandomUserProfile(t *testing.T) Userprofile {
 	user := CreateRandomUser(t)
 
 	arg := CreateUserProfileParams{
-		UserID:        user.UserID,
+		Username:      user.Username,
 		FullName:      util.GetRandomUsername(15),
 		Age:           int32(util.GetRandomAmount(16, 50)),
 		Gender:        "male",
@@ -24,12 +24,12 @@ func CreateRandomUserProfile(t *testing.T) Userprofile {
 	require.NoError(t, err)
 	require.NotEmpty(t, userProfile)
 
-	require.Equal(t, arg.UserID, userProfile.UserID)
+	require.Equal(t, arg.Username, userProfile.Username)
 	require.Equal(t, arg.FullName, userProfile.FullName)
 	require.Equal(t, arg.Age, userProfile.Age)
 	require.Equal(t, arg.PreferredUnit, userProfile.PreferredUnit)
 
-	require.NotZero(t, user.UserID)
+	require.NotZero(t, user.Username)
 	return userProfile
 }
 
@@ -39,11 +39,11 @@ func TestCreateUserProfile(t *testing.T) {
 
 func TestGetUserProfile(t *testing.T) {
 	userP1 := CreateRandomUserProfile(t)
-	userP2, err := testStore.GetUserProfile(context.Background(), userP1.UserID)
+	userP2, err := testStore.GetUserProfile(context.Background(), userP1.Username)
 	require.NoError(t, err)
 	require.NotEmpty(t, userP2)
 
-	require.Equal(t, userP1.UserID, userP2.UserID)
+	require.Equal(t, userP1.Username, userP2.Username)
 	require.Equal(t, userP1.UserProfileID, userP2.UserProfileID)
 	require.Equal(t, userP1.FullName, userP2.FullName)
 	require.Equal(t, userP1.Gender, userP2.Gender)
@@ -54,7 +54,7 @@ func TestUpdateUserProfile(t *testing.T) {
 	user1 := CreateRandomUserProfile(t)
 
 	arg := UpdateUserProfileParams{
-		UserID:        user1.UserID,
+		Username:      user1.Username,
 		FullName:      util.GetRandomEmail(8),
 		Age:           int32(util.GetRandomAmount(16, 50)),
 		Gender:        "female",
@@ -66,17 +66,17 @@ func TestUpdateUserProfile(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 
-	require.Equal(t, arg.UserID, user2.UserID)
+	require.Equal(t, arg.Username, user2.Username)
 	require.Equal(t, arg.FullName, user2.FullName)
 	require.Equal(t, arg.Age, user2.Age)
 }
 
 func TestDeleteUserProfile(t *testing.T) {
 	user1 := CreateRandomUserProfile(t)
-	err := testStore.DeleteUserProfile(context.Background(), user1.UserID)
+	err := testStore.DeleteUserProfile(context.Background(), user1.Username)
 	require.NoError(t, err)
 
-	user2, err := testStore.GetUserProfile(context.Background(), user1.UserID)
+	user2, err := testStore.GetUserProfile(context.Background(), user1.Username)
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, user2)

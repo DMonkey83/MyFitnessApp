@@ -12,19 +12,19 @@ import (
 )
 
 const createWorkoutprogram = `-- name: CreateWorkoutprogram :one
-INSERT INTO WorkoutProgram (user_id, program_name, description)
+INSERT INTO WorkoutProgram (username, program_name, description)
 VALUES ($1, $2, $3)
 RETURNING program_id
 `
 
 type CreateWorkoutprogramParams struct {
-	UserID      int64       `json:"user_id"`
+	Username    string      `json:"username"`
 	ProgramName string      `json:"program_name"`
 	Description pgtype.Text `json:"description"`
 }
 
 func (q *Queries) CreateWorkoutprogram(ctx context.Context, arg CreateWorkoutprogramParams) (int64, error) {
-	row := q.db.QueryRow(ctx, createWorkoutprogram, arg.UserID, arg.ProgramName, arg.Description)
+	row := q.db.QueryRow(ctx, createWorkoutprogram, arg.Username, arg.ProgramName, arg.Description)
 	var program_id int64
 	err := row.Scan(&program_id)
 	return program_id, err
@@ -41,7 +41,7 @@ func (q *Queries) DeleteWorkoutprogram(ctx context.Context, programID int64) err
 }
 
 const getWorkoutprogram = `-- name: GetWorkoutprogram :one
-SELECT program_id, user_id, program_name, description
+SELECT program_id, username, program_name, description
 FROM WorkoutProgram
 WHERE program_id = $1
 `
@@ -51,7 +51,7 @@ func (q *Queries) GetWorkoutprogram(ctx context.Context, programID int64) (Worko
 	var i Workoutprogram
 	err := row.Scan(
 		&i.ProgramID,
-		&i.UserID,
+		&i.Username,
 		&i.ProgramName,
 		&i.Description,
 	)
@@ -98,14 +98,14 @@ func (q *Queries) ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogra
 
 const updateWorkoutprogram = `-- name: UpdateWorkoutprogram :one
 UPDATE WorkoutProgram
-SET user_id = $2, program_name = $3, description = $4
+SET username = $2, program_name = $3, description = $4
 WHERE program_id = $1
-RETURNING program_id, user_id, program_name, description
+RETURNING program_id, username, program_name, description
 `
 
 type UpdateWorkoutprogramParams struct {
 	ProgramID   int64       `json:"program_id"`
-	UserID      int64       `json:"user_id"`
+	Username    string      `json:"username"`
 	ProgramName string      `json:"program_name"`
 	Description pgtype.Text `json:"description"`
 }
@@ -113,14 +113,14 @@ type UpdateWorkoutprogramParams struct {
 func (q *Queries) UpdateWorkoutprogram(ctx context.Context, arg UpdateWorkoutprogramParams) (Workoutprogram, error) {
 	row := q.db.QueryRow(ctx, updateWorkoutprogram,
 		arg.ProgramID,
-		arg.UserID,
+		arg.Username,
 		arg.ProgramName,
 		arg.Description,
 	)
 	var i Workoutprogram
 	err := row.Scan(
 		&i.ProgramID,
-		&i.UserID,
+		&i.Username,
 		&i.ProgramName,
 		&i.Description,
 	)

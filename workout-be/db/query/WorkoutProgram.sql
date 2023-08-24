@@ -1,11 +1,11 @@
 
 -- name: CreateWorkoutprogram :one
-INSERT INTO WorkoutProgram (user_id, program_name, description)
+INSERT INTO WorkoutProgram (username, program_name, description)
 VALUES ($1, $2, $3)
 RETURNING program_id;
 
 -- name: GetWorkoutprogram :one
-SELECT program_id, user_id, program_name, description
+SELECT program_id, username, program_name, description
 FROM WorkoutProgram
 WHERE program_id = $1;
 
@@ -15,9 +15,9 @@ WHERE program_id = $1;
 
 -- name: UpdateWorkoutprogram :one
 UPDATE WorkoutProgram
-SET user_id = $2, program_name = $3, description = $4
+SET username = $2, program_name = $3, description = $4
 WHERE program_id = $1
-RETURNING program_id, user_id, program_name, description;
+RETURNING program_id, username, program_name, description;
 
 -- name: ListWorkoutprograms :many
 SELECT program_name, description

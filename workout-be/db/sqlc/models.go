@@ -7,6 +7,7 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -162,7 +163,7 @@ type Exercise struct {
 
 type Maxrepgoal struct {
 	GoalID     int64       `json:"goal_id"`
-	UserID     int64       `json:"user_id"`
+	Username   string      `json:"username"`
 	ExerciseID int64       `json:"exercise_id"`
 	GoalReps   int32       `json:"goal_reps"`
 	Notes      pgtype.Text `json:"notes"`
@@ -170,7 +171,7 @@ type Maxrepgoal struct {
 
 type Maxweightgoal struct {
 	GoalID     int64       `json:"goal_id"`
-	UserID     int64       `json:"user_id"`
+	Username   string      `json:"username"`
 	ExerciseID int64       `json:"exercise_id"`
 	GoalWeight float64     `json:"goal_weight"`
 	Notes      pgtype.Text `json:"notes"`
@@ -208,15 +209,15 @@ type Set struct {
 }
 
 type User struct {
-	UserID       int64  `json:"user_id"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	PasswordHash string `json:"password_hash"`
+	Username          string    `json:"username"`
+	Email             string    `json:"email"`
+	PasswordHash      string    `json:"password_hash"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
 }
 
 type Userprofile struct {
 	UserProfileID int64       `json:"user_profile_id"`
-	UserID        int64       `json:"user_id"`
+	Username      string      `json:"username"`
 	FullName      string      `json:"full_name"`
 	Age           int32       `json:"age"`
 	Gender        string      `json:"gender"`
@@ -227,7 +228,7 @@ type Userprofile struct {
 
 type Weightentry struct {
 	WeightEntryID int64         `json:"weight_entry_id"`
-	UserID        int64         `json:"user_id"`
+	Username      string        `json:"username"`
 	EntryDate     pgtype.Date   `json:"entry_date"`
 	WeightKg      pgtype.Float8 `json:"weight_kg"`
 	WeightLb      pgtype.Float8 `json:"weight_lb"`
@@ -236,7 +237,7 @@ type Weightentry struct {
 
 type Workout struct {
 	WorkoutID       int64           `json:"workout_id"`
-	UserID          int64           `json:"user_id"`
+	Username        string          `json:"username"`
 	WorkoutDate     pgtype.Date     `json:"workout_date"`
 	WorkoutDuration pgtype.Interval `json:"workout_duration"`
 	Notes           pgtype.Text     `json:"notes"`
@@ -244,7 +245,7 @@ type Workout struct {
 
 type Workoutprogram struct {
 	ProgramID   int64       `json:"program_id"`
-	UserID      int64       `json:"user_id"`
+	Username    string      `json:"username"`
 	ProgramName string      `json:"program_name"`
 	Description pgtype.Text `json:"description"`
 }
