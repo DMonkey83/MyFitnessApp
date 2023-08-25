@@ -1,10 +1,10 @@
 -- name: CreateWeightEntry :one
 INSERT INTO WeightEntry (username, entry_date, weight_kg, weight_lb, notes)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING weight_entry_id;
+RETURNING *;
 
 -- name: GetWeightEntry :one
-SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
+SELECT *
 FROM WeightEntry
 WHERE weight_entry_id = $1;
 
@@ -14,12 +14,12 @@ WHERE weight_entry_id = $1;
 
 -- name: UpdateWeightEntry :one
 UPDATE WeightEntry
-SET username = $2, entry_date = $3, weight_kg = $4, weight_lb = $5, notes = $6
+SET entry_date = $2, weight_kg = $3, weight_lb = $4, notes = $5
 WHERE weight_entry_id = $1
-RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes;
+RETURNING *;
 
 -- name: ListWeightEntries :many
-SELECT entry_date, weight_kg, weight_lb, notes
+SELECT *
 FROM WeightEntry
 ORDER BY weight_entry_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1

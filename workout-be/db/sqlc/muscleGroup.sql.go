@@ -12,14 +12,14 @@ import (
 const createMuscleGroup = `-- name: CreateMuscleGroup :one
 INSERT INTO MuscleGroup (muscle_group_name)
 VALUES ($1)
-RETURNING muscle_group_id
+RETURNING muscle_group_id, muscle_group_name
 `
 
-func (q *Queries) CreateMuscleGroup(ctx context.Context, muscleGroupName string) (int64, error) {
+func (q *Queries) CreateMuscleGroup(ctx context.Context, muscleGroupName string) (Musclegroup, error) {
 	row := q.db.QueryRow(ctx, createMuscleGroup, muscleGroupName)
-	var muscle_group_id int64
-	err := row.Scan(&muscle_group_id)
-	return muscle_group_id, err
+	var i Musclegroup
+	err := row.Scan(&i.MuscleGroupID, &i.MuscleGroupName)
+	return i, err
 }
 
 const deleteMuscleGroup = `-- name: DeleteMuscleGroup :exec

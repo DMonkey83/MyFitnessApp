@@ -14,7 +14,7 @@ import (
 const createWorkout = `-- name: CreateWorkout :one
 INSERT INTO Workout (username, workout_date, workout_duration, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING workout_id
+RETURNING workout_id, username, workout_date, workout_duration, notes
 `
 
 type CreateWorkoutParams struct {
@@ -24,16 +24,22 @@ type CreateWorkoutParams struct {
 	Notes           pgtype.Text     `json:"notes"`
 }
 
-func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (int64, error) {
+func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (Workout, error) {
 	row := q.db.QueryRow(ctx, createWorkout,
 		arg.Username,
 		arg.WorkoutDate,
 		arg.WorkoutDuration,
 		arg.Notes,
 	)
-	var workout_id int64
-	err := row.Scan(&workout_id)
-	return workout_id, err
+	var i Workout
+	err := row.Scan(
+		&i.WorkoutID,
+		&i.Username,
+		&i.WorkoutDate,
+		&i.WorkoutDuration,
+		&i.Notes,
+	)
+	return i, err
 }
 
 const deleteWorkout = `-- name: DeleteWorkout :exec
@@ -66,7 +72,7 @@ func (q *Queries) GetWorkout(ctx context.Context, workoutID int64) (Workout, err
 }
 
 const listWorkouts = `-- name: ListWorkouts :many
-SELECT workout_id, workout_date, workout_duration, notes
+SELECT workout_id, username, workout_date, workout_duration, notes
 FROM Workout
 ORDER BY workout_date -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -78,24 +84,18 @@ type ListWorkoutsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListWorkoutsRow struct {
-	WorkoutID       int64           `json:"workout_id"`
-	WorkoutDate     pgtype.Date     `json:"workout_date"`
-	WorkoutDuration pgtype.Interval `json:"workout_duration"`
-	Notes           pgtype.Text     `json:"notes"`
-}
-
-func (q *Queries) ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]ListWorkoutsRow, error) {
+func (q *Queries) ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]Workout, error) {
 	rows, err := q.db.Query(ctx, listWorkouts, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListWorkoutsRow{}
+	items := []Workout{}
 	for rows.Next() {
-		var i ListWorkoutsRow
+		var i Workout
 		if err := rows.Scan(
 			&i.WorkoutID,
+			&i.Username,
 			&i.WorkoutDate,
 			&i.WorkoutDuration,
 			&i.Notes,

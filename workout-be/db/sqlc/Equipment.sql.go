@@ -14,7 +14,7 @@ import (
 const createEquipment = `-- name: CreateEquipment :one
 INSERT INTO Equipment (equipment_name, description, equipment_type)
 VALUES ($1, $2, $3)
-RETURNING equipment_id
+RETURNING equipment_id, equipment_name, description, equipment_type
 `
 
 type CreateEquipmentParams struct {
@@ -23,11 +23,16 @@ type CreateEquipmentParams struct {
 	EquipmentType Equipmenttype `json:"equipment_type"`
 }
 
-func (q *Queries) CreateEquipment(ctx context.Context, arg CreateEquipmentParams) (int64, error) {
+func (q *Queries) CreateEquipment(ctx context.Context, arg CreateEquipmentParams) (Equipment, error) {
 	row := q.db.QueryRow(ctx, createEquipment, arg.EquipmentName, arg.Description, arg.EquipmentType)
-	var equipment_id int64
-	err := row.Scan(&equipment_id)
-	return equipment_id, err
+	var i Equipment
+	err := row.Scan(
+		&i.EquipmentID,
+		&i.EquipmentName,
+		&i.Description,
+		&i.EquipmentType,
+	)
+	return i, err
 }
 
 const deleteEquipment = `-- name: DeleteEquipment :exec
@@ -59,7 +64,7 @@ func (q *Queries) GetEquipment(ctx context.Context, equipmentID int64) (Equipmen
 }
 
 const listEquipments = `-- name: ListEquipments :many
-SELECT equipment_id, equipment_name, equipment_type, description
+SELECT equipment_id, equipment_name, description, equipment_type
 FROM Equipment
 ORDER BY equipment_type -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -71,27 +76,20 @@ type ListEquipmentsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListEquipmentsRow struct {
-	EquipmentID   int64         `json:"equipment_id"`
-	EquipmentName string        `json:"equipment_name"`
-	EquipmentType Equipmenttype `json:"equipment_type"`
-	Description   pgtype.Text   `json:"description"`
-}
-
-func (q *Queries) ListEquipments(ctx context.Context, arg ListEquipmentsParams) ([]ListEquipmentsRow, error) {
+func (q *Queries) ListEquipments(ctx context.Context, arg ListEquipmentsParams) ([]Equipment, error) {
 	rows, err := q.db.Query(ctx, listEquipments, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListEquipmentsRow{}
+	items := []Equipment{}
 	for rows.Next() {
-		var i ListEquipmentsRow
+		var i Equipment
 		if err := rows.Scan(
 			&i.EquipmentID,
 			&i.EquipmentName,
-			&i.EquipmentType,
 			&i.Description,
+			&i.EquipmentType,
 		); err != nil {
 			return nil, err
 		}

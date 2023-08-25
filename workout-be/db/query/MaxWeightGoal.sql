@@ -2,14 +2,14 @@
 -- name: CreateMaxWeightGoal :one
 INSERT INTO MaxWeightGoal (username, exercise_id, goal_weight, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING goal_id;
+RETURNING *;
 
 -- name: GetMaxWeightGoal :one
-SELECT goal_id, username, exercise_id, goal_weight, notes
+SELECT *
 FROM MaxWeightGoal
 WHERE goal_id = $1;
 
--- name: DeleteWeightRepGoal :exec
+-- name: DeleteMaxWeightGoal :exec
 DELETE FROM MaxWeightGoal
 WHERE goal_id = $1;
 
@@ -17,10 +17,10 @@ WHERE goal_id = $1;
 UPDATE MaxWeightGoal
 SET exercise_id = $2, goal_weight = $3, notes = $4
 WHERE goal_id = $1
-RETURNING goal_id, username, exercise_id, goal_weight, notes;
+RETURNING *;
 
 -- name: ListMaxWeightGoals :many
-SELECT goal_weight, notes
+SELECT *
 FROM MaxWeightGoal
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1

@@ -34,13 +34,12 @@ func TestCreateUser(t *testing.T) {
 	CreateRandomUser(t)
 }
 
-func TestGetAccount(t *testing.T) {
+func TestGetUser(t *testing.T) {
 	user1 := CreateRandomUser(t)
 	user2, err := testStore.GetUser(context.Background(), user1.Username)
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 
-	require.Equal(t, user1.Username, user2.Username)
 	require.Equal(t, user1.Username, user2.Username)
 	require.Equal(t, user1.Email, user2.Email)
 }

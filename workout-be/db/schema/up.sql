@@ -105,15 +105,6 @@ CREATE TABLE IF NOT EXISTS WorkoutProgram (
     description TEXT
 );
 
--- ProgramWorkout Table
-CREATE TABLE IF NOT EXISTS ProgramWorkout (
-    program_workout_id BIGSERIAL PRIMARY KEY,
-    program_id BIGINT REFERENCES WorkoutProgram(program_id) NOT NULL,
-    workout_id BIGINT REFERENCES Workout(workout_id) NOT NULL,
-    day_of_week INT NOT NULL,
-    notes TEXT
-);
-
 -- WeightEntry Table
 CREATE TABLE IF NOT EXISTS WeightEntry (
     weight_entry_id BIGSERIAL PRIMARY KEY,

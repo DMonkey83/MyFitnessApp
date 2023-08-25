@@ -14,7 +14,7 @@ import (
 const createMaxWeightGoal = `-- name: CreateMaxWeightGoal :one
 INSERT INTO MaxWeightGoal (username, exercise_id, goal_weight, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING goal_id
+RETURNING goal_id, username, exercise_id, goal_weight, notes
 `
 
 type CreateMaxWeightGoalParams struct {
@@ -24,25 +24,31 @@ type CreateMaxWeightGoalParams struct {
 	Notes      pgtype.Text `json:"notes"`
 }
 
-func (q *Queries) CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (int64, error) {
+func (q *Queries) CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (Maxweightgoal, error) {
 	row := q.db.QueryRow(ctx, createMaxWeightGoal,
 		arg.Username,
 		arg.ExerciseID,
 		arg.GoalWeight,
 		arg.Notes,
 	)
-	var goal_id int64
-	err := row.Scan(&goal_id)
-	return goal_id, err
+	var i Maxweightgoal
+	err := row.Scan(
+		&i.GoalID,
+		&i.Username,
+		&i.ExerciseID,
+		&i.GoalWeight,
+		&i.Notes,
+	)
+	return i, err
 }
 
-const deleteWeightRepGoal = `-- name: DeleteWeightRepGoal :exec
+const deleteMaxWeightGoal = `-- name: DeleteMaxWeightGoal :exec
 DELETE FROM MaxWeightGoal
 WHERE goal_id = $1
 `
 
-func (q *Queries) DeleteWeightRepGoal(ctx context.Context, goalID int64) error {
-	_, err := q.db.Exec(ctx, deleteWeightRepGoal, goalID)
+func (q *Queries) DeleteMaxWeightGoal(ctx context.Context, goalID int64) error {
+	_, err := q.db.Exec(ctx, deleteMaxWeightGoal, goalID)
 	return err
 }
 
@@ -66,7 +72,7 @@ func (q *Queries) GetMaxWeightGoal(ctx context.Context, goalID int64) (Maxweight
 }
 
 const listMaxWeightGoals = `-- name: ListMaxWeightGoals :many
-SELECT goal_weight, notes
+SELECT goal_id, username, exercise_id, goal_weight, notes
 FROM MaxWeightGoal
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -78,21 +84,22 @@ type ListMaxWeightGoalsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListMaxWeightGoalsRow struct {
-	GoalWeight float64     `json:"goal_weight"`
-	Notes      pgtype.Text `json:"notes"`
-}
-
-func (q *Queries) ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoalsParams) ([]ListMaxWeightGoalsRow, error) {
+func (q *Queries) ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoalsParams) ([]Maxweightgoal, error) {
 	rows, err := q.db.Query(ctx, listMaxWeightGoals, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListMaxWeightGoalsRow{}
+	items := []Maxweightgoal{}
 	for rows.Next() {
-		var i ListMaxWeightGoalsRow
-		if err := rows.Scan(&i.GoalWeight, &i.Notes); err != nil {
+		var i Maxweightgoal
+		if err := rows.Scan(
+			&i.GoalID,
+			&i.Username,
+			&i.ExerciseID,
+			&i.GoalWeight,
+			&i.Notes,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

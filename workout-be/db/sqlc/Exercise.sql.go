@@ -14,7 +14,7 @@ import (
 const createExercise = `-- name: CreateExercise :one
 INSERT INTO Exercise (exercise_name,muscle_group, description, equipment_id)
 VALUES ($1, $2, $3, $4)
-RETURNING exercise_id
+RETURNING exercise_id, exercise_name, muscle_group, description, equipment_id
 `
 
 type CreateExerciseParams struct {
@@ -24,16 +24,22 @@ type CreateExerciseParams struct {
 	EquipmentID  pgtype.Int8     `json:"equipment_id"`
 }
 
-func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (int64, error) {
+func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (Exercise, error) {
 	row := q.db.QueryRow(ctx, createExercise,
 		arg.ExerciseName,
 		arg.MuscleGroup,
 		arg.Description,
 		arg.EquipmentID,
 	)
-	var exercise_id int64
-	err := row.Scan(&exercise_id)
-	return exercise_id, err
+	var i Exercise
+	err := row.Scan(
+		&i.ExerciseID,
+		&i.ExerciseName,
+		&i.MuscleGroup,
+		&i.Description,
+		&i.EquipmentID,
+	)
+	return i, err
 }
 
 const deleteExercise = `-- name: DeleteExercise :exec

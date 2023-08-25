@@ -1,10 +1,10 @@
 -- name: CreateEquipment :one
 INSERT INTO Equipment (equipment_name, description, equipment_type)
 VALUES ($1, $2, $3)
-RETURNING equipment_id;
+RETURNING *;
 
 -- name: GetEquipment :one
-SELECT equipment_id, equipment_name, description, equipment_type
+SELECT *
 FROM Equipment
 WHERE equipment_id = $1;
 
@@ -16,10 +16,10 @@ WHERE equipment_id = $1;
 UPDATE Equipment
 SET equipment_name = $2, description = $3, equipment_type = $4
 WHERE equipment_id = $1
-RETURNING equipment_id, equipment_name, description, equipment_type;
+RETURNING *;
 
 -- name: ListEquipments :many
-SELECT equipment_id, equipment_name, equipment_type, description
+SELECT *
 FROM Equipment
 ORDER BY equipment_type -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1

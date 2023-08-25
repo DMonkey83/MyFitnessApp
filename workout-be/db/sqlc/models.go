@@ -182,14 +182,6 @@ type Musclegroup struct {
 	MuscleGroupName string `json:"muscle_group_name"`
 }
 
-type Programworkout struct {
-	ProgramWorkoutID int64       `json:"program_workout_id"`
-	ProgramID        int64       `json:"program_id"`
-	WorkoutID        int64       `json:"workout_id"`
-	DayOfWeek        int32       `json:"day_of_week"`
-	Notes            pgtype.Text `json:"notes"`
-}
-
 type Rep struct {
 	RepID     int64       `json:"rep_id"`
 	SetID     int64       `json:"set_id"`

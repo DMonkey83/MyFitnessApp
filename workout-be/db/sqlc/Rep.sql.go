@@ -14,7 +14,7 @@ import (
 const createRep = `-- name: CreateRep :one
 INSERT INTO Rep (set_id, rep_number, completed, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING rep_id
+RETURNING rep_id, set_id, rep_number, completed, notes
 `
 
 type CreateRepParams struct {
@@ -24,16 +24,22 @@ type CreateRepParams struct {
 	Notes     pgtype.Text `json:"notes"`
 }
 
-func (q *Queries) CreateRep(ctx context.Context, arg CreateRepParams) (int64, error) {
+func (q *Queries) CreateRep(ctx context.Context, arg CreateRepParams) (Rep, error) {
 	row := q.db.QueryRow(ctx, createRep,
 		arg.SetID,
 		arg.RepNumber,
 		arg.Completed,
 		arg.Notes,
 	)
-	var rep_id int64
-	err := row.Scan(&rep_id)
-	return rep_id, err
+	var i Rep
+	err := row.Scan(
+		&i.RepID,
+		&i.SetID,
+		&i.RepNumber,
+		&i.Completed,
+		&i.Notes,
+	)
+	return i, err
 }
 
 const deleteRep = `-- name: DeleteRep :exec
@@ -66,7 +72,7 @@ func (q *Queries) GetRep(ctx context.Context, repID int64) (Rep, error) {
 }
 
 const listReps = `-- name: ListReps :many
-SELECT rep_number, completed, notes
+SELECT rep_id, set_id, rep_number, completed, notes
 FROM Rep
 ORDER BY rep_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -78,22 +84,22 @@ type ListRepsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListRepsRow struct {
-	RepNumber int32       `json:"rep_number"`
-	Completed pgtype.Bool `json:"completed"`
-	Notes     pgtype.Text `json:"notes"`
-}
-
-func (q *Queries) ListReps(ctx context.Context, arg ListRepsParams) ([]ListRepsRow, error) {
+func (q *Queries) ListReps(ctx context.Context, arg ListRepsParams) ([]Rep, error) {
 	rows, err := q.db.Query(ctx, listReps, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListRepsRow{}
+	items := []Rep{}
 	for rows.Next() {
-		var i ListRepsRow
-		if err := rows.Scan(&i.RepNumber, &i.Completed, &i.Notes); err != nil {
+		var i Rep
+		if err := rows.Scan(
+			&i.RepID,
+			&i.SetID,
+			&i.RepNumber,
+			&i.Completed,
+			&i.Notes,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -106,14 +112,13 @@ func (q *Queries) ListReps(ctx context.Context, arg ListRepsParams) ([]ListRepsR
 
 const updateRep = `-- name: UpdateRep :one
 UPDATE Rep
-SET set_id = $2, rep_number = $3, completed = $4, notes = $5
+SET rep_number = $2, completed = $3, notes = $4
 WHERE rep_id = $1
 RETURNING rep_id, set_id, rep_number, completed, notes
 `
 
 type UpdateRepParams struct {
 	RepID     int64       `json:"rep_id"`
-	SetID     int64       `json:"set_id"`
 	RepNumber int32       `json:"rep_number"`
 	Completed pgtype.Bool `json:"completed"`
 	Notes     pgtype.Text `json:"notes"`
@@ -122,7 +127,6 @@ type UpdateRepParams struct {
 func (q *Queries) UpdateRep(ctx context.Context, arg UpdateRepParams) (Rep, error) {
 	row := q.db.QueryRow(ctx, updateRep,
 		arg.RepID,
-		arg.SetID,
 		arg.RepNumber,
 		arg.Completed,
 		arg.Notes,

@@ -1,10 +1,10 @@
 -- name: CreateExercise :one
 INSERT INTO Exercise (exercise_name,muscle_group, description, equipment_id)
 VALUES ($1, $2, $3, $4)
-RETURNING exercise_id;
+RETURNING *;
 
 -- name: GetExercise :one
-SELECT exercise_id, exercise_name, muscle_group, description, equipment_id
+SELECT *
 FROM Exercise
 WHERE exercise_id = $1;
 
@@ -16,7 +16,7 @@ WHERE exercise_id = $1;
 UPDATE Exercise
 SET exercise_name = $2, muscle_group = $3, description = $4, equipment_id = $5
 WHERE exercise_id = $1
-RETURNING exercise_id, exercise_name, muscle_group, description, equipment_id;
+RETURNING *;
 
 -- name: ListExercise :many
 SELECT exercise_id, exercise_name, description

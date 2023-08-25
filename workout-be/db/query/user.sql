@@ -17,7 +17,7 @@ WHERE username = $1;
 
 -- name: UpdateUser :one
 UPDATE "User"
-SET username = $2, email = $3
+SET email = $2
 WHERE username = $1
 RETURNING *;
 

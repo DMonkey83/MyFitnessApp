@@ -9,28 +9,28 @@ import (
 )
 
 type Querier interface {
-	CreateEquipment(ctx context.Context, arg CreateEquipmentParams) (int64, error)
-	CreateExercise(ctx context.Context, arg CreateExerciseParams) (int64, error)
-	CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalParams) (int64, error)
-	CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (int64, error)
-	CreateMuscleGroup(ctx context.Context, muscleGroupName string) (int64, error)
-	CreateRep(ctx context.Context, arg CreateRepParams) (int64, error)
-	CreateSet(ctx context.Context, arg CreateSetParams) (int64, error)
+	CreateEquipment(ctx context.Context, arg CreateEquipmentParams) (Equipment, error)
+	CreateExercise(ctx context.Context, arg CreateExerciseParams) (Exercise, error)
+	CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalParams) (Maxrepgoal, error)
+	CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (Maxweightgoal, error)
+	CreateMuscleGroup(ctx context.Context, muscleGroupName string) (Musclegroup, error)
+	CreateRep(ctx context.Context, arg CreateRepParams) (Rep, error)
+	CreateSet(ctx context.Context, arg CreateSetParams) (Set, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (Userprofile, error)
-	CreateWeightEntry(ctx context.Context, arg CreateWeightEntryParams) (int64, error)
-	CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (int64, error)
-	CreateWorkoutprogram(ctx context.Context, arg CreateWorkoutprogramParams) (int64, error)
+	CreateWeightEntry(ctx context.Context, arg CreateWeightEntryParams) (Weightentry, error)
+	CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (Workout, error)
+	CreateWorkoutprogram(ctx context.Context, arg CreateWorkoutprogramParams) (Workoutprogram, error)
 	DeleteEquipment(ctx context.Context, equipmentID int64) error
 	DeleteExercise(ctx context.Context, exerciseID int64) error
 	DeleteMaxRepGoal(ctx context.Context, goalID int64) error
+	DeleteMaxWeightGoal(ctx context.Context, goalID int64) error
 	DeleteMuscleGroup(ctx context.Context, muscleGroupID int64) error
 	DeleteRep(ctx context.Context, repID int64) error
 	DeleteSet(ctx context.Context, setID int64) error
 	DeleteUser(ctx context.Context, username string) error
 	DeleteUserProfile(ctx context.Context, username string) error
 	DeleteWeightEntry(ctx context.Context, weightEntryID int64) error
-	DeleteWeightRepGoal(ctx context.Context, goalID int64) error
 	DeleteWorkout(ctx context.Context, workoutID int64) error
 	DeleteWorkoutprogram(ctx context.Context, programID int64) error
 	GetEquipment(ctx context.Context, equipmentID int64) (Equipment, error)
@@ -45,16 +45,16 @@ type Querier interface {
 	GetWeightEntry(ctx context.Context, weightEntryID int64) (Weightentry, error)
 	GetWorkout(ctx context.Context, workoutID int64) (Workout, error)
 	GetWorkoutprogram(ctx context.Context, programID int64) (Workoutprogram, error)
-	ListEquipments(ctx context.Context, arg ListEquipmentsParams) ([]ListEquipmentsRow, error)
+	ListEquipments(ctx context.Context, arg ListEquipmentsParams) ([]Equipment, error)
 	ListExercise(ctx context.Context, arg ListExerciseParams) ([]ListExerciseRow, error)
-	ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams) ([]ListMaxRepGoalsRow, error)
-	ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoalsParams) ([]ListMaxWeightGoalsRow, error)
+	ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams) ([]Maxrepgoal, error)
+	ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoalsParams) ([]Maxweightgoal, error)
 	ListMuscleGroups(ctx context.Context, arg ListMuscleGroupsParams) ([]Musclegroup, error)
-	ListReps(ctx context.Context, arg ListRepsParams) ([]ListRepsRow, error)
-	ListSets(ctx context.Context, arg ListSetsParams) ([]ListSetsRow, error)
-	ListWeightEntries(ctx context.Context, arg ListWeightEntriesParams) ([]ListWeightEntriesRow, error)
-	ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogramsParams) ([]ListWorkoutprogramsRow, error)
-	ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]ListWorkoutsRow, error)
+	ListReps(ctx context.Context, arg ListRepsParams) ([]Rep, error)
+	ListSets(ctx context.Context, arg ListSetsParams) ([]Set, error)
+	ListWeightEntries(ctx context.Context, arg ListWeightEntriesParams) ([]Weightentry, error)
+	ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogramsParams) ([]Workoutprogram, error)
+	ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]Workout, error)
 	UpdateEquipment(ctx context.Context, arg UpdateEquipmentParams) (Equipment, error)
 	UpdateExercise(ctx context.Context, arg UpdateExerciseParams) (Exercise, error)
 	UpdateMaxRepGoal(ctx context.Context, arg UpdateMaxRepGoalParams) (Maxrepgoal, error)

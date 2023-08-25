@@ -14,7 +14,7 @@ import (
 const createMaxRepGoal = `-- name: CreateMaxRepGoal :one
 INSERT INTO MaxRepGoal (username, exercise_id, goal_reps, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING goal_id
+RETURNING goal_id, username, exercise_id, goal_reps, notes
 `
 
 type CreateMaxRepGoalParams struct {
@@ -24,16 +24,22 @@ type CreateMaxRepGoalParams struct {
 	Notes      pgtype.Text `json:"notes"`
 }
 
-func (q *Queries) CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalParams) (int64, error) {
+func (q *Queries) CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalParams) (Maxrepgoal, error) {
 	row := q.db.QueryRow(ctx, createMaxRepGoal,
 		arg.Username,
 		arg.ExerciseID,
 		arg.GoalReps,
 		arg.Notes,
 	)
-	var goal_id int64
-	err := row.Scan(&goal_id)
-	return goal_id, err
+	var i Maxrepgoal
+	err := row.Scan(
+		&i.GoalID,
+		&i.Username,
+		&i.ExerciseID,
+		&i.GoalReps,
+		&i.Notes,
+	)
+	return i, err
 }
 
 const deleteMaxRepGoal = `-- name: DeleteMaxRepGoal :exec
@@ -66,7 +72,7 @@ func (q *Queries) GetMaxRepGoal(ctx context.Context, goalID int64) (Maxrepgoal, 
 }
 
 const listMaxRepGoals = `-- name: ListMaxRepGoals :many
-SELECT goal_reps, notes
+SELECT goal_id, username, exercise_id, goal_reps, notes
 FROM MaxRepGoal
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -78,21 +84,22 @@ type ListMaxRepGoalsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListMaxRepGoalsRow struct {
-	GoalReps int32       `json:"goal_reps"`
-	Notes    pgtype.Text `json:"notes"`
-}
-
-func (q *Queries) ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams) ([]ListMaxRepGoalsRow, error) {
+func (q *Queries) ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams) ([]Maxrepgoal, error) {
 	rows, err := q.db.Query(ctx, listMaxRepGoals, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListMaxRepGoalsRow{}
+	items := []Maxrepgoal{}
 	for rows.Next() {
-		var i ListMaxRepGoalsRow
-		if err := rows.Scan(&i.GoalReps, &i.Notes); err != nil {
+		var i Maxrepgoal
+		if err := rows.Scan(
+			&i.GoalID,
+			&i.Username,
+			&i.ExerciseID,
+			&i.GoalReps,
+			&i.Notes,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -105,19 +112,25 @@ func (q *Queries) ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams
 
 const updateMaxRepGoal = `-- name: UpdateMaxRepGoal :one
 UPDATE MaxRepGoal
-SET exercise_id = $2, goal_reps = $3, notes = $3
+SET exercise_id = $2, goal_reps = $3, notes = $4
 WHERE goal_id = $1
 RETURNING goal_id, username, exercise_id, goal_reps, notes
 `
 
 type UpdateMaxRepGoalParams struct {
-	GoalID     int64 `json:"goal_id"`
-	ExerciseID int64 `json:"exercise_id"`
-	GoalReps   int32 `json:"goal_reps"`
+	GoalID     int64       `json:"goal_id"`
+	ExerciseID int64       `json:"exercise_id"`
+	GoalReps   int32       `json:"goal_reps"`
+	Notes      pgtype.Text `json:"notes"`
 }
 
 func (q *Queries) UpdateMaxRepGoal(ctx context.Context, arg UpdateMaxRepGoalParams) (Maxrepgoal, error) {
-	row := q.db.QueryRow(ctx, updateMaxRepGoal, arg.GoalID, arg.ExerciseID, arg.GoalReps)
+	row := q.db.QueryRow(ctx, updateMaxRepGoal,
+		arg.GoalID,
+		arg.ExerciseID,
+		arg.GoalReps,
+		arg.Notes,
+	)
 	var i Maxrepgoal
 	err := row.Scan(
 		&i.GoalID,

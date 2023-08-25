@@ -14,7 +14,7 @@ import (
 const createWorkoutprogram = `-- name: CreateWorkoutprogram :one
 INSERT INTO WorkoutProgram (username, program_name, description)
 VALUES ($1, $2, $3)
-RETURNING program_id
+RETURNING program_id, username, program_name, description
 `
 
 type CreateWorkoutprogramParams struct {
@@ -23,11 +23,16 @@ type CreateWorkoutprogramParams struct {
 	Description pgtype.Text `json:"description"`
 }
 
-func (q *Queries) CreateWorkoutprogram(ctx context.Context, arg CreateWorkoutprogramParams) (int64, error) {
+func (q *Queries) CreateWorkoutprogram(ctx context.Context, arg CreateWorkoutprogramParams) (Workoutprogram, error) {
 	row := q.db.QueryRow(ctx, createWorkoutprogram, arg.Username, arg.ProgramName, arg.Description)
-	var program_id int64
-	err := row.Scan(&program_id)
-	return program_id, err
+	var i Workoutprogram
+	err := row.Scan(
+		&i.ProgramID,
+		&i.Username,
+		&i.ProgramName,
+		&i.Description,
+	)
+	return i, err
 }
 
 const deleteWorkoutprogram = `-- name: DeleteWorkoutprogram :exec
@@ -59,7 +64,7 @@ func (q *Queries) GetWorkoutprogram(ctx context.Context, programID int64) (Worko
 }
 
 const listWorkoutprograms = `-- name: ListWorkoutprograms :many
-SELECT program_name, description
+SELECT program_id, username, program_name, description
 FROM WorkoutProgram
 ORDER BY program_name -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -71,21 +76,21 @@ type ListWorkoutprogramsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListWorkoutprogramsRow struct {
-	ProgramName string      `json:"program_name"`
-	Description pgtype.Text `json:"description"`
-}
-
-func (q *Queries) ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogramsParams) ([]ListWorkoutprogramsRow, error) {
+func (q *Queries) ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogramsParams) ([]Workoutprogram, error) {
 	rows, err := q.db.Query(ctx, listWorkoutprograms, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListWorkoutprogramsRow{}
+	items := []Workoutprogram{}
 	for rows.Next() {
-		var i ListWorkoutprogramsRow
-		if err := rows.Scan(&i.ProgramName, &i.Description); err != nil {
+		var i Workoutprogram
+		if err := rows.Scan(
+			&i.ProgramID,
+			&i.Username,
+			&i.ProgramName,
+			&i.Description,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -98,25 +103,19 @@ func (q *Queries) ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogra
 
 const updateWorkoutprogram = `-- name: UpdateWorkoutprogram :one
 UPDATE WorkoutProgram
-SET username = $2, program_name = $3, description = $4
+SET program_name = $2, description = $3
 WHERE program_id = $1
 RETURNING program_id, username, program_name, description
 `
 
 type UpdateWorkoutprogramParams struct {
 	ProgramID   int64       `json:"program_id"`
-	Username    string      `json:"username"`
 	ProgramName string      `json:"program_name"`
 	Description pgtype.Text `json:"description"`
 }
 
 func (q *Queries) UpdateWorkoutprogram(ctx context.Context, arg UpdateWorkoutprogramParams) (Workoutprogram, error) {
-	row := q.db.QueryRow(ctx, updateWorkoutprogram,
-		arg.ProgramID,
-		arg.Username,
-		arg.ProgramName,
-		arg.Description,
-	)
+	row := q.db.QueryRow(ctx, updateWorkoutprogram, arg.ProgramID, arg.ProgramName, arg.Description)
 	var i Workoutprogram
 	err := row.Scan(
 		&i.ProgramID,
