@@ -7,12 +7,18 @@ import (
 )
 
 func CreateRandomMuscleGroup(t *testing.T) Musclegroup {
+	ex := CreateRandomExercise(t)
 
-	mgroup, err := testStore.CreateMuscleGroup(context.Background(), string(MuscleGroupEnumLegs))
+	arg := CreateMuscleGroupParams{
+		MuscleGroupName: string(MuscleGroupEnumChest),
+		ExerciseID:      ex.ExerciseID,
+	}
+
+	mgroup, err := testStore.CreateMuscleGroup(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, mgroup)
 
-	require.Equal(t, string("Legs"), mgroup.MuscleGroupName)
+	require.Equal(t, string("Chest"), mgroup.MuscleGroupName)
 
 	require.NotZero(t, mgroup.MuscleGroupID)
 	return mgroup

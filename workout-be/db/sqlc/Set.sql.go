@@ -12,13 +12,12 @@ import (
 )
 
 const createSet = `-- name: CreateSet :one
-INSERT INTO Set (workout_id, exercise_id, set_number, weight, rest_duration, notes)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING set_id, workout_id, exercise_id, set_number, weight, rest_duration, notes
+INSERT INTO Set (exercise_id, set_number, weight, rest_duration, notes)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes
 `
 
 type CreateSetParams struct {
-	WorkoutID    int64           `json:"workout_id"`
 	ExerciseID   int64           `json:"exercise_id"`
 	SetNumber    int32           `json:"set_number"`
 	Weight       pgtype.Float8   `json:"weight"`
@@ -28,7 +27,6 @@ type CreateSetParams struct {
 
 func (q *Queries) CreateSet(ctx context.Context, arg CreateSetParams) (Set, error) {
 	row := q.db.QueryRow(ctx, createSet,
-		arg.WorkoutID,
 		arg.ExerciseID,
 		arg.SetNumber,
 		arg.Weight,
@@ -38,7 +36,6 @@ func (q *Queries) CreateSet(ctx context.Context, arg CreateSetParams) (Set, erro
 	var i Set
 	err := row.Scan(
 		&i.SetID,
-		&i.WorkoutID,
 		&i.ExerciseID,
 		&i.SetNumber,
 		&i.Weight,
@@ -59,7 +56,7 @@ func (q *Queries) DeleteSet(ctx context.Context, setID int64) error {
 }
 
 const getSet = `-- name: GetSet :one
-SELECT set_id, workout_id, exercise_id, set_number, weight, rest_duration, notes
+SELECT set_id, exercise_id, set_number, weight, rest_duration, notes
 FROM Set
 WHERE set_id = $1
 `
@@ -69,7 +66,6 @@ func (q *Queries) GetSet(ctx context.Context, setID int64) (Set, error) {
 	var i Set
 	err := row.Scan(
 		&i.SetID,
-		&i.WorkoutID,
 		&i.ExerciseID,
 		&i.SetNumber,
 		&i.Weight,
@@ -80,7 +76,7 @@ func (q *Queries) GetSet(ctx context.Context, setID int64) (Set, error) {
 }
 
 const listSets = `-- name: ListSets :many
-SELECT set_id, workout_id, exercise_id, set_number, weight, rest_duration, notes
+SELECT set_id, exercise_id, set_number, weight, rest_duration, notes
 FROM Set
 ORDER BY set_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -103,7 +99,6 @@ func (q *Queries) ListSets(ctx context.Context, arg ListSetsParams) ([]Set, erro
 		var i Set
 		if err := rows.Scan(
 			&i.SetID,
-			&i.WorkoutID,
 			&i.ExerciseID,
 			&i.SetNumber,
 			&i.Weight,
@@ -124,7 +119,7 @@ const updateSet = `-- name: UpdateSet :one
 UPDATE Set
 SET set_number = $2, weight = $3, rest_duration = $4, notes = $5
 WHERE set_id = $1
-RETURNING set_id, workout_id, exercise_id, set_number, weight, rest_duration, notes
+RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes
 `
 
 type UpdateSetParams struct {
@@ -146,7 +141,6 @@ func (q *Queries) UpdateSet(ctx context.Context, arg UpdateSetParams) (Set, erro
 	var i Set
 	err := row.Scan(
 		&i.SetID,
-		&i.WorkoutID,
 		&i.ExerciseID,
 		&i.SetNumber,
 		&i.Weight,

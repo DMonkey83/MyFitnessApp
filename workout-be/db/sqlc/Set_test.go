@@ -11,9 +11,7 @@ import (
 
 func CreateRandomSet(t *testing.T) Set {
 	ex := CreateRandomExercise(t)
-	workout := CreateRandomWorkout(t)
 	arg := CreateSetParams{
-		WorkoutID:    workout.WorkoutID,
 		ExerciseID:   ex.ExerciseID,
 		SetNumber:    int32(util.GetRandomAmount(1, 10)),
 		Weight:       pgtype.Float8{Float64: float64(util.GetRandomAmount(1, 200)), Valid: true},
@@ -27,7 +25,6 @@ func CreateRandomSet(t *testing.T) Set {
 
 	require.Equal(t, arg.ExerciseID, set.ExerciseID)
 	require.Equal(t, arg.Notes, set.Notes)
-	require.Equal(t, arg.WorkoutID, set.WorkoutID)
 	require.Equal(t, arg.Weight, set.Weight)
 	require.Equal(t, arg.Notes, set.Notes)
 
@@ -47,7 +44,6 @@ func TestGeSet(t *testing.T) {
 
 	require.Equal(t, set1.ExerciseID, set2.ExerciseID)
 	require.Equal(t, set1.Notes, set2.Notes)
-	require.Equal(t, set1.WorkoutID, set2.WorkoutID)
 	require.Equal(t, set1.Notes, set2.Notes)
 	require.Equal(t, set1.Weight, set2.Weight)
 }

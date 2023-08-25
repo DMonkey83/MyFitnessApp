@@ -1,5 +1,5 @@
 -- name: CreateExercise :one
-INSERT INTO Exercise (exercise_name,muscle_group, description, equipment_id)
+INSERT INTO Exercise (exercise_name,workout_id, description, equipment_id)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
@@ -14,7 +14,7 @@ WHERE exercise_id = $1;
 
 -- name: UpdateExercise :one
 UPDATE Exercise
-SET exercise_name = $2, muscle_group = $3, description = $4, equipment_id = $5
+SET exercise_name = $2, description = $3, equipment_id = $4
 WHERE exercise_id = $1
 RETURNING *;
 

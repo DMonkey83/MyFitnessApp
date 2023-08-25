@@ -1,6 +1,6 @@
 -- name: CreateMuscleGroup :one
-INSERT INTO MuscleGroup (muscle_group_name)
-VALUES ($1)
+INSERT INTO MuscleGroup (muscle_group_name, exercise_id)
+VALUES ($1, $2)
 RETURNING *;
 
 -- name: GetMuscleGroup :one

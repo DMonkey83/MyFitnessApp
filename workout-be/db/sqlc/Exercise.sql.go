@@ -12,30 +12,30 @@ import (
 )
 
 const createExercise = `-- name: CreateExercise :one
-INSERT INTO Exercise (exercise_name,muscle_group, description, equipment_id)
+INSERT INTO Exercise (exercise_name,workout_id, description, equipment_id)
 VALUES ($1, $2, $3, $4)
-RETURNING exercise_id, exercise_name, muscle_group, description, equipment_id
+RETURNING exercise_id, workout_id, exercise_name, description, equipment_id
 `
 
 type CreateExerciseParams struct {
-	ExerciseName string          `json:"exercise_name"`
-	MuscleGroup  MuscleGroupEnum `json:"muscle_group"`
-	Description  pgtype.Text     `json:"description"`
-	EquipmentID  pgtype.Int8     `json:"equipment_id"`
+	ExerciseName string      `json:"exercise_name"`
+	WorkoutID    int64       `json:"workout_id"`
+	Description  pgtype.Text `json:"description"`
+	EquipmentID  pgtype.Int8 `json:"equipment_id"`
 }
 
 func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (Exercise, error) {
 	row := q.db.QueryRow(ctx, createExercise,
 		arg.ExerciseName,
-		arg.MuscleGroup,
+		arg.WorkoutID,
 		arg.Description,
 		arg.EquipmentID,
 	)
 	var i Exercise
 	err := row.Scan(
 		&i.ExerciseID,
+		&i.WorkoutID,
 		&i.ExerciseName,
-		&i.MuscleGroup,
 		&i.Description,
 		&i.EquipmentID,
 	)
@@ -53,7 +53,7 @@ func (q *Queries) DeleteExercise(ctx context.Context, exerciseID int64) error {
 }
 
 const getExercise = `-- name: GetExercise :one
-SELECT exercise_id, exercise_name, muscle_group, description, equipment_id
+SELECT exercise_id, workout_id, exercise_name, description, equipment_id
 FROM Exercise
 WHERE exercise_id = $1
 `
@@ -63,8 +63,8 @@ func (q *Queries) GetExercise(ctx context.Context, exerciseID int64) (Exercise, 
 	var i Exercise
 	err := row.Scan(
 		&i.ExerciseID,
+		&i.WorkoutID,
 		&i.ExerciseName,
-		&i.MuscleGroup,
 		&i.Description,
 		&i.EquipmentID,
 	)
@@ -112,32 +112,30 @@ func (q *Queries) ListExercise(ctx context.Context, arg ListExerciseParams) ([]L
 
 const updateExercise = `-- name: UpdateExercise :one
 UPDATE Exercise
-SET exercise_name = $2, muscle_group = $3, description = $4, equipment_id = $5
+SET exercise_name = $2, description = $3, equipment_id = $4
 WHERE exercise_id = $1
-RETURNING exercise_id, exercise_name, muscle_group, description, equipment_id
+RETURNING exercise_id, workout_id, exercise_name, description, equipment_id
 `
 
 type UpdateExerciseParams struct {
-	ExerciseID   int64           `json:"exercise_id"`
-	ExerciseName string          `json:"exercise_name"`
-	MuscleGroup  MuscleGroupEnum `json:"muscle_group"`
-	Description  pgtype.Text     `json:"description"`
-	EquipmentID  pgtype.Int8     `json:"equipment_id"`
+	ExerciseID   int64       `json:"exercise_id"`
+	ExerciseName string      `json:"exercise_name"`
+	Description  pgtype.Text `json:"description"`
+	EquipmentID  pgtype.Int8 `json:"equipment_id"`
 }
 
 func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) (Exercise, error) {
 	row := q.db.QueryRow(ctx, updateExercise,
 		arg.ExerciseID,
 		arg.ExerciseName,
-		arg.MuscleGroup,
 		arg.Description,
 		arg.EquipmentID,
 	)
 	var i Exercise
 	err := row.Scan(
 		&i.ExerciseID,
+		&i.WorkoutID,
 		&i.ExerciseName,
-		&i.MuscleGroup,
 		&i.Description,
 		&i.EquipmentID,
 	)

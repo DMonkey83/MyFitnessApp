@@ -10,15 +10,20 @@ import (
 )
 
 const createMuscleGroup = `-- name: CreateMuscleGroup :one
-INSERT INTO MuscleGroup (muscle_group_name)
-VALUES ($1)
-RETURNING muscle_group_id, muscle_group_name
+INSERT INTO MuscleGroup (muscle_group_name, exercise_id)
+VALUES ($1, $2)
+RETURNING muscle_group_id, exercise_id, muscle_group_name
 `
 
-func (q *Queries) CreateMuscleGroup(ctx context.Context, muscleGroupName string) (Musclegroup, error) {
-	row := q.db.QueryRow(ctx, createMuscleGroup, muscleGroupName)
+type CreateMuscleGroupParams struct {
+	MuscleGroupName string `json:"muscle_group_name"`
+	ExerciseID      int64  `json:"exercise_id"`
+}
+
+func (q *Queries) CreateMuscleGroup(ctx context.Context, arg CreateMuscleGroupParams) (Musclegroup, error) {
+	row := q.db.QueryRow(ctx, createMuscleGroup, arg.MuscleGroupName, arg.ExerciseID)
 	var i Musclegroup
-	err := row.Scan(&i.MuscleGroupID, &i.MuscleGroupName)
+	err := row.Scan(&i.MuscleGroupID, &i.ExerciseID, &i.MuscleGroupName)
 	return i, err
 }
 
@@ -33,7 +38,7 @@ func (q *Queries) DeleteMuscleGroup(ctx context.Context, muscleGroupID int64) er
 }
 
 const getMuscleGroup = `-- name: GetMuscleGroup :one
-SELECT muscle_group_id, muscle_group_name
+SELECT muscle_group_id, exercise_id, muscle_group_name
 FROM MuscleGroup
 WHERE muscle_group_id = $1
 `
@@ -41,12 +46,12 @@ WHERE muscle_group_id = $1
 func (q *Queries) GetMuscleGroup(ctx context.Context, muscleGroupID int64) (Musclegroup, error) {
 	row := q.db.QueryRow(ctx, getMuscleGroup, muscleGroupID)
 	var i Musclegroup
-	err := row.Scan(&i.MuscleGroupID, &i.MuscleGroupName)
+	err := row.Scan(&i.MuscleGroupID, &i.ExerciseID, &i.MuscleGroupName)
 	return i, err
 }
 
 const listMuscleGroups = `-- name: ListMuscleGroups :many
-SELECT muscle_group_id, muscle_group_name
+SELECT muscle_group_id, exercise_id, muscle_group_name
 FROM MuscleGroup
 ORDER BY muscle_group_name -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -67,7 +72,7 @@ func (q *Queries) ListMuscleGroups(ctx context.Context, arg ListMuscleGroupsPara
 	items := []Musclegroup{}
 	for rows.Next() {
 		var i Musclegroup
-		if err := rows.Scan(&i.MuscleGroupID, &i.MuscleGroupName); err != nil {
+		if err := rows.Scan(&i.MuscleGroupID, &i.ExerciseID, &i.MuscleGroupName); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -82,7 +87,7 @@ const updateMuscleGroup = `-- name: UpdateMuscleGroup :one
 UPDATE MuscleGroup
 SET muscle_group_name = $2
 WHERE muscle_group_id = $1
-RETURNING muscle_group_id, muscle_group_name
+RETURNING muscle_group_id, exercise_id, muscle_group_name
 `
 
 type UpdateMuscleGroupParams struct {
@@ -93,6 +98,6 @@ type UpdateMuscleGroupParams struct {
 func (q *Queries) UpdateMuscleGroup(ctx context.Context, arg UpdateMuscleGroupParams) (Musclegroup, error) {
 	row := q.db.QueryRow(ctx, updateMuscleGroup, arg.MuscleGroupID, arg.MuscleGroupName)
 	var i Musclegroup
-	err := row.Scan(&i.MuscleGroupID, &i.MuscleGroupName)
+	err := row.Scan(&i.MuscleGroupID, &i.ExerciseID, &i.MuscleGroupName)
 	return i, err
 }

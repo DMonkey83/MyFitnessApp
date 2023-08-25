@@ -11,19 +11,19 @@ import (
 
 func CreateRandomExercise(t *testing.T) Exercise {
 	eq := CreateRandomEquipment(t)
+	wk := CreateRandomWorkout(t)
 	arg := CreateExerciseParams{
 		ExerciseName: util.GetRandomUsername(5),
-		MuscleGroup:  MuscleGroupEnumAbs,
 		EquipmentID:  pgtype.Int8{Int64: int64(eq.EquipmentID), Valid: true},
+		WorkoutID:    wk.WorkoutID,
 	}
 
 	exerc, err := testStore.CreateExercise(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, exerc)
 
-	require.Equal(t, arg.MuscleGroup, exerc.MuscleGroup)
 	require.Equal(t, arg.ExerciseName, exerc.ExerciseName)
-	require.Equal(t, arg.MuscleGroup, exerc.MuscleGroup)
+	require.Equal(t, arg.WorkoutID, exerc.WorkoutID)
 
 	require.NotZero(t, exerc.EquipmentID)
 	return exerc
@@ -41,7 +41,7 @@ func TestGetExercise(t *testing.T) {
 
 	require.Equal(t, ex1.ExerciseID, ex2.ExerciseID)
 	require.Equal(t, ex1.ExerciseName, ex2.ExerciseName)
-	require.Equal(t, ex1.MuscleGroup, ex2.MuscleGroup)
+	require.Equal(t, ex1.WorkoutID, ex2.WorkoutID)
 }
 
 func TestUpdateExercise(t *testing.T) {
@@ -51,7 +51,6 @@ func TestUpdateExercise(t *testing.T) {
 		EquipmentID:  ex1.EquipmentID,
 		ExerciseID:   ex1.ExerciseID,
 		ExerciseName: util.GetRandomUsername(4),
-		MuscleGroup:  MuscleGroupEnumArms,
 	}
 
 	eq2, err := testStore.UpdateExercise(context.Background(), arg)
@@ -60,7 +59,6 @@ func TestUpdateExercise(t *testing.T) {
 
 	require.Equal(t, arg.EquipmentID, eq2.EquipmentID)
 	require.Equal(t, arg.ExerciseName, eq2.ExerciseName)
-	require.Equal(t, arg.MuscleGroup, eq2.MuscleGroup)
 }
 
 func TestDeleteExercise(t *testing.T) {

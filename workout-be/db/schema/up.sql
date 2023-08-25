@@ -45,27 +45,12 @@ CREATE TABLE IF NOT EXISTS UserProfile (
     preferred_unit WeightUnit NOT NULL
 );
 
--- MuscleGroup Table
-CREATE TABLE IF NOT EXISTS MuscleGroup (
-    muscle_group_id BIGSERIAL PRIMARY KEY,
-    muscle_group_name VARCHAR(255) NOT NULL
-);
-
 -- Equipment Table
 CREATE TABLE IF NOT EXISTS Equipment (
     equipment_id BIGSERIAL PRIMARY KEY,
     equipment_name VARCHAR(255) NOT NULL,
     description TEXT,
     equipment_type EquipmentType NOT NULL
-);
-
--- Exercise Table
-CREATE TABLE IF NOT EXISTS Exercise (
-    exercise_id BIGSERIAL PRIMARY KEY,
-    exercise_name VARCHAR(255) NOT NULL,
-    muscle_group muscle_group_enum not null,
-    description TEXT,
-    equipment_id BIGINT REFERENCES Equipment(equipment_id)
 );
 
 -- Workout Table
@@ -77,10 +62,26 @@ CREATE TABLE IF NOT EXISTS Workout (
     notes TEXT
 );
 
+
+-- Exercise Table
+CREATE TABLE IF NOT EXISTS Exercise (
+    exercise_id BIGSERIAL PRIMARY KEY,
+    workout_id BIGINT REFERENCES Workout(workout_id) NOT NULL,
+    exercise_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    equipment_id BIGINT REFERENCES Equipment(equipment_id)
+);
+
+-- MuscleGroup Table
+CREATE TABLE IF NOT EXISTS MuscleGroup (
+    muscle_group_id BIGSERIAL PRIMARY KEY,
+    exercise_id BIGINT REFERENCES Exercise(exercise_id) NOT NULL,
+    muscle_group_name VARCHAR(255) NOT NULL
+);
+
 -- Set Table
 CREATE TABLE IF NOT EXISTS Set (
     set_id BIGSERIAL PRIMARY KEY,
-    workout_id BIGINT REFERENCES Workout(workout_id) NOT NULL,
     exercise_id BIGINT REFERENCES Exercise(exercise_id) NOT NULL,
     set_number INT NOT NULL,
     weight FLOAT,

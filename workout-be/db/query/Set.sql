@@ -1,7 +1,7 @@
 
 -- name: CreateSet :one
-INSERT INTO Set (workout_id, exercise_id, set_number, weight, rest_duration, notes)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO Set (exercise_id, set_number, weight, rest_duration, notes)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetSet :one

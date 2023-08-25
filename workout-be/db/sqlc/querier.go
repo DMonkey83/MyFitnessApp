@@ -13,7 +13,7 @@ type Querier interface {
 	CreateExercise(ctx context.Context, arg CreateExerciseParams) (Exercise, error)
 	CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalParams) (Maxrepgoal, error)
 	CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (Maxweightgoal, error)
-	CreateMuscleGroup(ctx context.Context, muscleGroupName string) (Musclegroup, error)
+	CreateMuscleGroup(ctx context.Context, arg CreateMuscleGroupParams) (Musclegroup, error)
 	CreateRep(ctx context.Context, arg CreateRepParams) (Rep, error)
 	CreateSet(ctx context.Context, arg CreateSetParams) (Set, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)

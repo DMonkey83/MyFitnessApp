@@ -154,11 +154,11 @@ type Equipment struct {
 }
 
 type Exercise struct {
-	ExerciseID   int64           `json:"exercise_id"`
-	ExerciseName string          `json:"exercise_name"`
-	MuscleGroup  MuscleGroupEnum `json:"muscle_group"`
-	Description  pgtype.Text     `json:"description"`
-	EquipmentID  pgtype.Int8     `json:"equipment_id"`
+	ExerciseID   int64       `json:"exercise_id"`
+	WorkoutID    int64       `json:"workout_id"`
+	ExerciseName string      `json:"exercise_name"`
+	Description  pgtype.Text `json:"description"`
+	EquipmentID  pgtype.Int8 `json:"equipment_id"`
 }
 
 type Maxrepgoal struct {
@@ -179,6 +179,7 @@ type Maxweightgoal struct {
 
 type Musclegroup struct {
 	MuscleGroupID   int64  `json:"muscle_group_id"`
+	ExerciseID      int64  `json:"exercise_id"`
 	MuscleGroupName string `json:"muscle_group_name"`
 }
 
@@ -192,7 +193,6 @@ type Rep struct {
 
 type Set struct {
 	SetID        int64           `json:"set_id"`
-	WorkoutID    int64           `json:"workout_id"`
 	ExerciseID   int64           `json:"exercise_id"`
 	SetNumber    int32           `json:"set_number"`
 	Weight       pgtype.Float8   `json:"weight"`

@@ -43,7 +43,6 @@ func TestGetReps(t *testing.T) {
 
 	require.Equal(t, set1.ExerciseID, set2.ExerciseID)
 	require.Equal(t, set1.Notes, set2.Notes)
-	require.Equal(t, set1.WorkoutID, set2.WorkoutID)
 	require.Equal(t, set1.Notes, set2.Notes)
 	require.Equal(t, set1.Weight, set2.Weight)
 }
