@@ -102,9 +102,15 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
+	loginUesr := db.User{
+		Username:          user.Username,
+		Email:             user.Email,
+		PasswordChangedAt: user.PasswordChangedAt,
+	}
+
 	rsp := loginUserResponse{
 		AccessToken: accessToken,
-		User:        newUserResponse(user),
+		User:        newUserResponse(loginUesr),
 	}
 
 	ctx.JSON(http.StatusOK, rsp)

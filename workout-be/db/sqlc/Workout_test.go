@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,9 +14,9 @@ func CreateRandomWorkout(t *testing.T) Workout {
 
 	arg := CreateWorkoutParams{
 		Username:        user.Username,
-		Notes:           pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
-		WorkoutDuration: pgtype.Interval{Microseconds: int64(util.GetRandomAmount(1, 1000)), Valid: true},
-		WorkoutDate:     pgtype.Date{Time: time.Now(), Valid: true},
+		Notes:           util.GetRandomUsername(100),
+		WorkoutDuration: "0h10m",
+		WorkoutDate:     time.Now(),
 	}
 
 	workout, err := testStore.CreateWorkout(context.Background(), arg)
@@ -54,8 +53,8 @@ func TestUpdateWorkout(t *testing.T) {
 		WorkoutID:       wkout1.WorkoutID,
 		Username:        wkout1.Username,
 		Notes:           wkout1.Notes,
-		WorkoutDuration: pgtype.Interval{Microseconds: int64(util.GetRandomAmount(1, 1000)), Valid: true},
-		WorkoutDate:     pgtype.Date{Time: <-time.After(time.Duration(util.GetRandomAmount(1, 10000000))), Valid: true},
+		WorkoutDuration: "1h",
+		WorkoutDate:     time.Now(),
 	}
 
 	wkout2, err := testStore.UpdateWorkout(context.Background(), arg)

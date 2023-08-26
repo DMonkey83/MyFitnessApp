@@ -7,19 +7,17 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEquipment = `-- name: CreateEquipment :one
 INSERT INTO Equipment (equipment_name, description, equipment_type)
 VALUES ($1, $2, $3)
-RETURNING equipment_id, equipment_name, description, equipment_type
+RETURNING equipment_name, description, equipment_type, created_at
 `
 
 type CreateEquipmentParams struct {
 	EquipmentName string        `json:"equipment_name"`
-	Description   pgtype.Text   `json:"description"`
+	Description   string        `json:"description"`
 	EquipmentType Equipmenttype `json:"equipment_type"`
 }
 
@@ -27,57 +25,57 @@ func (q *Queries) CreateEquipment(ctx context.Context, arg CreateEquipmentParams
 	row := q.db.QueryRow(ctx, createEquipment, arg.EquipmentName, arg.Description, arg.EquipmentType)
 	var i Equipment
 	err := row.Scan(
-		&i.EquipmentID,
 		&i.EquipmentName,
 		&i.Description,
 		&i.EquipmentType,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const deleteEquipment = `-- name: DeleteEquipment :exec
 DELETE FROM Equipment
-WHERE equipment_id = $1
+WHERE equipment_name = $1
 `
 
-func (q *Queries) DeleteEquipment(ctx context.Context, equipmentID int64) error {
-	_, err := q.db.Exec(ctx, deleteEquipment, equipmentID)
+func (q *Queries) DeleteEquipment(ctx context.Context, equipmentName string) error {
+	_, err := q.db.Exec(ctx, deleteEquipment, equipmentName)
 	return err
 }
 
 const getEquipment = `-- name: GetEquipment :one
-SELECT equipment_id, equipment_name, description, equipment_type
+SELECT equipment_name, description, equipment_type, created_at
 FROM Equipment
-WHERE equipment_id = $1
+WHERE equipment_name = $1
 `
 
-func (q *Queries) GetEquipment(ctx context.Context, equipmentID int64) (Equipment, error) {
-	row := q.db.QueryRow(ctx, getEquipment, equipmentID)
+func (q *Queries) GetEquipment(ctx context.Context, equipmentName string) (Equipment, error) {
+	row := q.db.QueryRow(ctx, getEquipment, equipmentName)
 	var i Equipment
 	err := row.Scan(
-		&i.EquipmentID,
 		&i.EquipmentName,
 		&i.Description,
 		&i.EquipmentType,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const listEquipments = `-- name: ListEquipments :many
-SELECT equipment_id, equipment_name, description, equipment_type
+const listExpuipments = `-- name: ListExpuipments :many
+SELECT equipment_name, description, equipment_type, created_at
 FROM Equipment
-ORDER BY equipment_type -- You can change the ORDER BY clause to order by a different column if needed
+ORDER BY equipment_name -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
 OFFSET $2
 `
 
-type ListEquipmentsParams struct {
+type ListExpuipmentsParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListEquipments(ctx context.Context, arg ListEquipmentsParams) ([]Equipment, error) {
-	rows, err := q.db.Query(ctx, listEquipments, arg.Limit, arg.Offset)
+func (q *Queries) ListExpuipments(ctx context.Context, arg ListExpuipmentsParams) ([]Equipment, error) {
+	rows, err := q.db.Query(ctx, listExpuipments, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +84,10 @@ func (q *Queries) ListEquipments(ctx context.Context, arg ListEquipmentsParams) 
 	for rows.Next() {
 		var i Equipment
 		if err := rows.Scan(
-			&i.EquipmentID,
 			&i.EquipmentName,
 			&i.Description,
 			&i.EquipmentType,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -103,31 +101,25 @@ func (q *Queries) ListEquipments(ctx context.Context, arg ListEquipmentsParams) 
 
 const updateEquipment = `-- name: UpdateEquipment :one
 UPDATE Equipment
-SET equipment_name = $2, description = $3, equipment_type = $4
-WHERE equipment_id = $1
-RETURNING equipment_id, equipment_name, description, equipment_type
+SET description = $2, equipment_type = $3
+WHERE equipment_name = $1
+RETURNING equipment_name, description, equipment_type, created_at
 `
 
 type UpdateEquipmentParams struct {
-	EquipmentID   int64         `json:"equipment_id"`
 	EquipmentName string        `json:"equipment_name"`
-	Description   pgtype.Text   `json:"description"`
+	Description   string        `json:"description"`
 	EquipmentType Equipmenttype `json:"equipment_type"`
 }
 
 func (q *Queries) UpdateEquipment(ctx context.Context, arg UpdateEquipmentParams) (Equipment, error) {
-	row := q.db.QueryRow(ctx, updateEquipment,
-		arg.EquipmentID,
-		arg.EquipmentName,
-		arg.Description,
-		arg.EquipmentType,
-	)
+	row := q.db.QueryRow(ctx, updateEquipment, arg.EquipmentName, arg.Description, arg.EquipmentType)
 	var i Equipment
 	err := row.Scan(
-		&i.EquipmentID,
 		&i.EquipmentName,
 		&i.Description,
 		&i.EquipmentType,
+		&i.CreatedAt,
 	)
 	return i, err
 }

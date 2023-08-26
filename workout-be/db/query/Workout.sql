@@ -24,4 +24,4 @@ SELECT * FROM Workout
 WHERE username = $1
 ORDER BY workout_date -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $2
-OFFSET $3;
+OFFSET $3; 

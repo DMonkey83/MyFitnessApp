@@ -7,21 +7,20 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const createWorkout = `-- name: CreateWorkout :one
 INSERT INTO Workout (username, workout_date, workout_duration, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING workout_id, username, workout_date, workout_duration, notes
+RETURNING workout_id, username, workout_date, workout_duration, notes, created_at
 `
 
 type CreateWorkoutParams struct {
-	Username        string          `json:"username"`
-	WorkoutDate     pgtype.Date     `json:"workout_date"`
-	WorkoutDuration pgtype.Interval `json:"workout_duration"`
-	Notes           pgtype.Text     `json:"notes"`
+	Username        string    `json:"username"`
+	WorkoutDate     time.Time `json:"workout_date"`
+	WorkoutDuration string    `json:"workout_duration"`
+	Notes           string    `json:"notes"`
 }
 
 func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (Workout, error) {
@@ -38,6 +37,7 @@ func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (W
 		&i.WorkoutDate,
 		&i.WorkoutDuration,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -53,7 +53,7 @@ func (q *Queries) DeleteWorkout(ctx context.Context, workoutID int64) error {
 }
 
 const getWorkout = `-- name: GetWorkout :one
-SELECT workout_id, username, workout_date, workout_duration, notes
+SELECT workout_id, username, workout_date, workout_duration, notes, created_at
 FROM Workout
 WHERE workout_id = $1
 `
@@ -67,12 +67,13 @@ func (q *Queries) GetWorkout(ctx context.Context, workoutID int64) (Workout, err
 		&i.WorkoutDate,
 		&i.WorkoutDuration,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listWorkouts = `-- name: ListWorkouts :many
-SELECT workout_id, username, workout_date, workout_duration, notes FROM Workout
+SELECT workout_id, username, workout_date, workout_duration, notes, created_at FROM Workout
 WHERE username = $1
 ORDER BY workout_date -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $2
@@ -100,6 +101,7 @@ func (q *Queries) ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]W
 			&i.WorkoutDate,
 			&i.WorkoutDuration,
 			&i.Notes,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -115,15 +117,15 @@ const updateWorkout = `-- name: UpdateWorkout :one
 UPDATE Workout
 SET username = $2, workout_date = $3, workout_duration = $4, notes = $5
 WHERE workout_id = $1
-RETURNING workout_id, username, workout_date, workout_duration, notes
+RETURNING workout_id, username, workout_date, workout_duration, notes, created_at
 `
 
 type UpdateWorkoutParams struct {
-	WorkoutID       int64           `json:"workout_id"`
-	Username        string          `json:"username"`
-	WorkoutDate     pgtype.Date     `json:"workout_date"`
-	WorkoutDuration pgtype.Interval `json:"workout_duration"`
-	Notes           pgtype.Text     `json:"notes"`
+	WorkoutID       int64     `json:"workout_id"`
+	Username        string    `json:"username"`
+	WorkoutDate     time.Time `json:"workout_date"`
+	WorkoutDuration string    `json:"workout_duration"`
+	Notes           string    `json:"notes"`
 }
 
 func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) (Workout, error) {
@@ -141,6 +143,7 @@ func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) (W
 		&i.WorkoutDate,
 		&i.WorkoutDuration,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,9 +13,9 @@ func CreateRandomSet(t *testing.T) Set {
 	arg := CreateSetParams{
 		ExerciseID:   ex.ExerciseID,
 		SetNumber:    int32(util.GetRandomAmount(1, 10)),
-		Weight:       pgtype.Float8{Float64: float64(util.GetRandomAmount(1, 200)), Valid: true},
-		Notes:        pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
-		RestDuration: pgtype.Interval{Microseconds: int64(util.GetRandomAmount(1, 400)), Days: 0, Months: 0, Valid: true},
+		Weight:       int32(util.GetRandomAmount(1, 200)),
+		Notes:        util.GetRandomUsername(100),
+		RestDuration: "1h",
 	}
 
 	set, err := testStore.CreateSet(context.Background(), arg)
@@ -52,10 +51,11 @@ func TestUpdateSet(t *testing.T) {
 	set1 := CreateRandomSet(t)
 
 	arg := UpdateSetParams{
-		SetID:     set1.SetID,
-		SetNumber: int32(util.GetRandomAmount(1, 10)),
-		Weight:    pgtype.Float8{Float64: float64(util.GetRandomAmount(1, 200)), Valid: true},
-		Notes:     pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
+		SetID:        set1.SetID,
+		SetNumber:    int32(util.GetRandomAmount(1, 10)),
+		Weight:       int32(util.GetRandomAmount(1, 200)),
+		Notes:        util.GetRandomUsername(100),
+		RestDuration: "1m",
 	}
 
 	set2, err := testStore.UpdateSet(context.Background(), arg)

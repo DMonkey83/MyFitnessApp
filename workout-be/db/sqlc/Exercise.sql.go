@@ -7,21 +7,20 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createExercise = `-- name: CreateExercise :one
-INSERT INTO Exercise (exercise_name,workout_id, description, equipment_id)
-VALUES ($1, $2, $3, $4)
-RETURNING exercise_id, workout_id, exercise_name, description, equipment_id
+INSERT INTO Exercise (exercise_name,workout_id, description, equipment_name, muscle_group_name)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
 `
 
 type CreateExerciseParams struct {
-	ExerciseName string      `json:"exercise_name"`
-	WorkoutID    int64       `json:"workout_id"`
-	Description  pgtype.Text `json:"description"`
-	EquipmentID  pgtype.Int8 `json:"equipment_id"`
+	ExerciseName    string          `json:"exercise_name"`
+	WorkoutID       int64           `json:"workout_id"`
+	Description     string          `json:"description"`
+	EquipmentName   string          `json:"equipment_name"`
+	MuscleGroupName Musclegroupenum `json:"muscle_group_name"`
 }
 
 func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (Exercise, error) {
@@ -29,15 +28,18 @@ func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) 
 		arg.ExerciseName,
 		arg.WorkoutID,
 		arg.Description,
-		arg.EquipmentID,
+		arg.EquipmentName,
+		arg.MuscleGroupName,
 	)
 	var i Exercise
 	err := row.Scan(
 		&i.ExerciseID,
 		&i.WorkoutID,
+		&i.EquipmentName,
 		&i.ExerciseName,
 		&i.Description,
-		&i.EquipmentID,
+		&i.MuscleGroupName,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -53,7 +55,7 @@ func (q *Queries) DeleteExercise(ctx context.Context, exerciseID int64) error {
 }
 
 const getExercise = `-- name: GetExercise :one
-SELECT exercise_id, workout_id, exercise_name, description, equipment_id
+SELECT exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
 FROM Exercise
 WHERE exercise_id = $1
 `
@@ -64,15 +66,17 @@ func (q *Queries) GetExercise(ctx context.Context, exerciseID int64) (Exercise, 
 	err := row.Scan(
 		&i.ExerciseID,
 		&i.WorkoutID,
+		&i.EquipmentName,
 		&i.ExerciseName,
 		&i.Description,
-		&i.EquipmentID,
+		&i.MuscleGroupName,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listAllExercise = `-- name: ListAllExercise :many
-SELECT exercise_id, workout_id, exercise_name, description, equipment_id
+SELECT exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
 FROM Exercise
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
@@ -96,9 +100,97 @@ func (q *Queries) ListAllExercise(ctx context.Context, arg ListAllExerciseParams
 		if err := rows.Scan(
 			&i.ExerciseID,
 			&i.WorkoutID,
+			&i.EquipmentName,
 			&i.ExerciseName,
 			&i.Description,
-			&i.EquipmentID,
+			&i.MuscleGroupName,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEquipmentExercise = `-- name: ListEquipmentExercise :many
+SELECT exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
+FROM Exercise
+WHERE equipment_name = $1
+ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
+LIMIT $2
+OFFSET $3
+`
+
+type ListEquipmentExerciseParams struct {
+	EquipmentName string `json:"equipment_name"`
+	Limit         int32  `json:"limit"`
+	Offset        int32  `json:"offset"`
+}
+
+func (q *Queries) ListEquipmentExercise(ctx context.Context, arg ListEquipmentExerciseParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listEquipmentExercise, arg.EquipmentName, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Exercise{}
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ExerciseID,
+			&i.WorkoutID,
+			&i.EquipmentName,
+			&i.ExerciseName,
+			&i.Description,
+			&i.MuscleGroupName,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMuscleGroupExercise = `-- name: ListMuscleGroupExercise :many
+SELECT exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
+FROM Exercise
+WHERE muscle_group_name = $1
+ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
+LIMIT $2
+OFFSET $3
+`
+
+type ListMuscleGroupExerciseParams struct {
+	MuscleGroupName Musclegroupenum `json:"muscle_group_name"`
+	Limit           int32           `json:"limit"`
+	Offset          int32           `json:"offset"`
+}
+
+func (q *Queries) ListMuscleGroupExercise(ctx context.Context, arg ListMuscleGroupExerciseParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listMuscleGroupExercise, arg.MuscleGroupName, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Exercise{}
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ExerciseID,
+			&i.WorkoutID,
+			&i.EquipmentName,
+			&i.ExerciseName,
+			&i.Description,
+			&i.MuscleGroupName,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -111,7 +203,7 @@ func (q *Queries) ListAllExercise(ctx context.Context, arg ListAllExerciseParams
 }
 
 const listWorkoutExercise = `-- name: ListWorkoutExercise :many
-SELECT exercise_id, workout_id, exercise_name, description, equipment_id
+SELECT exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
 FROM Exercise
 WHERE workout_id = $1
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
@@ -137,9 +229,11 @@ func (q *Queries) ListWorkoutExercise(ctx context.Context, arg ListWorkoutExerci
 		if err := rows.Scan(
 			&i.ExerciseID,
 			&i.WorkoutID,
+			&i.EquipmentName,
 			&i.ExerciseName,
 			&i.Description,
-			&i.EquipmentID,
+			&i.MuscleGroupName,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -153,16 +247,17 @@ func (q *Queries) ListWorkoutExercise(ctx context.Context, arg ListWorkoutExerci
 
 const updateExercise = `-- name: UpdateExercise :one
 UPDATE Exercise
-SET exercise_name = $2, description = $3, equipment_id = $4
+SET exercise_name = $2, description = $3, equipment_name = $4, muscle_group_name = $5
 WHERE exercise_id = $1
-RETURNING exercise_id, workout_id, exercise_name, description, equipment_id
+RETURNING exercise_id, workout_id, equipment_name, exercise_name, description, muscle_group_name, created_at
 `
 
 type UpdateExerciseParams struct {
-	ExerciseID   int64       `json:"exercise_id"`
-	ExerciseName string      `json:"exercise_name"`
-	Description  pgtype.Text `json:"description"`
-	EquipmentID  pgtype.Int8 `json:"equipment_id"`
+	ExerciseID      int64           `json:"exercise_id"`
+	ExerciseName    string          `json:"exercise_name"`
+	Description     string          `json:"description"`
+	EquipmentName   string          `json:"equipment_name"`
+	MuscleGroupName Musclegroupenum `json:"muscle_group_name"`
 }
 
 func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) (Exercise, error) {
@@ -170,15 +265,18 @@ func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) 
 		arg.ExerciseID,
 		arg.ExerciseName,
 		arg.Description,
-		arg.EquipmentID,
+		arg.EquipmentName,
+		arg.MuscleGroupName,
 	)
 	var i Exercise
 	err := row.Scan(
 		&i.ExerciseID,
 		&i.WorkoutID,
+		&i.EquipmentName,
 		&i.ExerciseName,
 		&i.Description,
-		&i.EquipmentID,
+		&i.MuscleGroupName,
+		&i.CreatedAt,
 	)
 	return i, err
 }

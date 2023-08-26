@@ -8,9 +8,50 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type Completionenum string
+
+const (
+	CompletionenumCompleted  Completionenum = "Completed"
+	CompletionenumIncomplete Completionenum = "Incomplete"
+	CompletionenumNotStarted Completionenum = "NotStarted"
+)
+
+func (e *Completionenum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Completionenum(s)
+	case string:
+		*e = Completionenum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Completionenum: %T", src)
+	}
+	return nil
+}
+
+type NullCompletionenum struct {
+	Completionenum Completionenum `json:"completionenum"`
+	Valid          bool           `json:"valid"` // Valid is true if Completionenum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCompletionenum) Scan(value interface{}) error {
+	if value == nil {
+		ns.Completionenum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Completionenum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCompletionenum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Completionenum), nil
+}
 
 type Equipmenttype string
 
@@ -57,51 +98,51 @@ func (ns NullEquipmenttype) Value() (driver.Value, error) {
 	return string(ns.Equipmenttype), nil
 }
 
-type MuscleGroupEnum string
+type Musclegroupenum string
 
 const (
-	MuscleGroupEnumChest     MuscleGroupEnum = "Chest"
-	MuscleGroupEnumBack      MuscleGroupEnum = "Back"
-	MuscleGroupEnumLegs      MuscleGroupEnum = "Legs"
-	MuscleGroupEnumShoulders MuscleGroupEnum = "Shoulders"
-	MuscleGroupEnumArms      MuscleGroupEnum = "Arms"
-	MuscleGroupEnumAbs       MuscleGroupEnum = "Abs"
-	MuscleGroupEnumCardio    MuscleGroupEnum = "Cardio"
+	MusclegroupenumChest     Musclegroupenum = "Chest"
+	MusclegroupenumBack      Musclegroupenum = "Back"
+	MusclegroupenumLegs      Musclegroupenum = "Legs"
+	MusclegroupenumShoulders Musclegroupenum = "Shoulders"
+	MusclegroupenumArms      Musclegroupenum = "Arms"
+	MusclegroupenumAbs       Musclegroupenum = "Abs"
+	MusclegroupenumCardio    Musclegroupenum = "Cardio"
 )
 
-func (e *MuscleGroupEnum) Scan(src interface{}) error {
+func (e *Musclegroupenum) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = MuscleGroupEnum(s)
+		*e = Musclegroupenum(s)
 	case string:
-		*e = MuscleGroupEnum(s)
+		*e = Musclegroupenum(s)
 	default:
-		return fmt.Errorf("unsupported scan type for MuscleGroupEnum: %T", src)
+		return fmt.Errorf("unsupported scan type for Musclegroupenum: %T", src)
 	}
 	return nil
 }
 
-type NullMuscleGroupEnum struct {
-	MuscleGroupEnum MuscleGroupEnum `json:"muscle_group_enum"`
-	Valid           bool            `json:"valid"` // Valid is true if MuscleGroupEnum is not NULL
+type NullMusclegroupenum struct {
+	Musclegroupenum Musclegroupenum `json:"musclegroupenum"`
+	Valid           bool            `json:"valid"` // Valid is true if Musclegroupenum is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullMuscleGroupEnum) Scan(value interface{}) error {
+func (ns *NullMusclegroupenum) Scan(value interface{}) error {
 	if value == nil {
-		ns.MuscleGroupEnum, ns.Valid = "", false
+		ns.Musclegroupenum, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.MuscleGroupEnum.Scan(value)
+	return ns.Musclegroupenum.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullMuscleGroupEnum) Value() (driver.Value, error) {
+func (ns NullMusclegroupenum) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.MuscleGroupEnum), nil
+	return string(ns.Musclegroupenum), nil
 }
 
 type Weightunit string
@@ -147,57 +188,57 @@ func (ns NullWeightunit) Value() (driver.Value, error) {
 }
 
 type Equipment struct {
-	EquipmentID   int64         `json:"equipment_id"`
 	EquipmentName string        `json:"equipment_name"`
-	Description   pgtype.Text   `json:"description"`
+	Description   string        `json:"description"`
 	EquipmentType Equipmenttype `json:"equipment_type"`
+	CreatedAt     time.Time     `json:"created_at"`
 }
 
 type Exercise struct {
-	ExerciseID   int64       `json:"exercise_id"`
-	WorkoutID    int64       `json:"workout_id"`
-	ExerciseName string      `json:"exercise_name"`
-	Description  pgtype.Text `json:"description"`
-	EquipmentID  pgtype.Int8 `json:"equipment_id"`
+	ExerciseID      int64           `json:"exercise_id"`
+	WorkoutID       int64           `json:"workout_id"`
+	EquipmentName   string          `json:"equipment_name"`
+	ExerciseName    string          `json:"exercise_name"`
+	Description     string          `json:"description"`
+	MuscleGroupName Musclegroupenum `json:"muscle_group_name"`
+	CreatedAt       time.Time       `json:"created_at"`
 }
 
 type Maxrepgoal struct {
-	GoalID     int64       `json:"goal_id"`
-	Username   string      `json:"username"`
-	ExerciseID int64       `json:"exercise_id"`
-	GoalReps   int32       `json:"goal_reps"`
-	Notes      pgtype.Text `json:"notes"`
+	GoalID     int64     `json:"goal_id"`
+	Username   string    `json:"username"`
+	ExerciseID int64     `json:"exercise_id"`
+	GoalReps   int32     `json:"goal_reps"`
+	Notes      string    `json:"notes"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 type Maxweightgoal struct {
-	GoalID     int64       `json:"goal_id"`
-	Username   string      `json:"username"`
-	ExerciseID int64       `json:"exercise_id"`
-	GoalWeight float64     `json:"goal_weight"`
-	Notes      pgtype.Text `json:"notes"`
-}
-
-type Musclegroup struct {
-	MuscleGroupID   int64  `json:"muscle_group_id"`
-	ExerciseID      int64  `json:"exercise_id"`
-	MuscleGroupName string `json:"muscle_group_name"`
+	GoalID     int64     `json:"goal_id"`
+	Username   string    `json:"username"`
+	ExerciseID int64     `json:"exercise_id"`
+	GoalWeight int32     `json:"goal_weight"`
+	Notes      string    `json:"notes"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 type Rep struct {
-	RepID     int64       `json:"rep_id"`
-	SetID     int64       `json:"set_id"`
-	RepNumber int32       `json:"rep_number"`
-	Completed pgtype.Bool `json:"completed"`
-	Notes     pgtype.Text `json:"notes"`
+	RepID            int64          `json:"rep_id"`
+	SetID            int64          `json:"set_id"`
+	RepNumber        int32          `json:"rep_number"`
+	CompletionStatus Completionenum `json:"completion_status"`
+	Notes            string         `json:"notes"`
+	CreatedAt        time.Time      `json:"created_at"`
 }
 
 type Set struct {
-	SetID        int64           `json:"set_id"`
-	ExerciseID   int64           `json:"exercise_id"`
-	SetNumber    int32           `json:"set_number"`
-	Weight       pgtype.Float8   `json:"weight"`
-	RestDuration pgtype.Interval `json:"rest_duration"`
-	Notes        pgtype.Text     `json:"notes"`
+	SetID        int64     `json:"set_id"`
+	ExerciseID   int64     `json:"exercise_id"`
+	SetNumber    int32     `json:"set_number"`
+	Weight       int32     `json:"weight"`
+	RestDuration string    `json:"rest_duration"`
+	Notes        string    `json:"notes"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type User struct {
@@ -205,39 +246,36 @@ type User struct {
 	Email             string    `json:"email"`
 	PasswordHash      string    `json:"password_hash"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
 }
 
 type Userprofile struct {
-	UserProfileID int64       `json:"user_profile_id"`
-	Username      string      `json:"username"`
-	FullName      string      `json:"full_name"`
-	Age           int32       `json:"age"`
-	Gender        string      `json:"gender"`
-	HeightCm      float64     `json:"height_cm"`
-	HeightFtIn    pgtype.Text `json:"height_ft_in"`
-	PreferredUnit Weightunit  `json:"preferred_unit"`
+	UserProfileID int64      `json:"user_profile_id"`
+	Username      string     `json:"username"`
+	FullName      string     `json:"full_name"`
+	Age           int32      `json:"age"`
+	Gender        string     `json:"gender"`
+	HeightCm      int32      `json:"height_cm"`
+	HeightFtIn    string     `json:"height_ft_in"`
+	PreferredUnit Weightunit `json:"preferred_unit"`
+	CreatedAt     time.Time  `json:"created_at"`
 }
 
 type Weightentry struct {
-	WeightEntryID int64         `json:"weight_entry_id"`
-	Username      string        `json:"username"`
-	EntryDate     pgtype.Date   `json:"entry_date"`
-	WeightKg      pgtype.Float8 `json:"weight_kg"`
-	WeightLb      pgtype.Float8 `json:"weight_lb"`
-	Notes         pgtype.Text   `json:"notes"`
+	WeightEntryID int64     `json:"weight_entry_id"`
+	Username      string    `json:"username"`
+	EntryDate     time.Time `json:"entry_date"`
+	WeightKg      int32     `json:"weight_kg"`
+	WeightLb      int32     `json:"weight_lb"`
+	Notes         string    `json:"notes"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 type Workout struct {
-	WorkoutID       int64           `json:"workout_id"`
-	Username        string          `json:"username"`
-	WorkoutDate     pgtype.Date     `json:"workout_date"`
-	WorkoutDuration pgtype.Interval `json:"workout_duration"`
-	Notes           pgtype.Text     `json:"notes"`
-}
-
-type Workoutprogram struct {
-	ProgramID   int64       `json:"program_id"`
-	Username    string      `json:"username"`
-	ProgramName string      `json:"program_name"`
-	Description pgtype.Text `json:"description"`
+	WorkoutID       int64     `json:"workout_id"`
+	Username        string    `json:"username"`
+	WorkoutDate     time.Time `json:"workout_date"`
+	WorkoutDuration string    `json:"workout_duration"`
+	Notes           string    `json:"notes"`
+	CreatedAt       time.Time `json:"created_at"`
 }

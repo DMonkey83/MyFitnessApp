@@ -7,22 +7,20 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createSet = `-- name: CreateSet :one
 INSERT INTO Set (exercise_id, set_number, weight, rest_duration, notes)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes
+RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
 `
 
 type CreateSetParams struct {
-	ExerciseID   int64           `json:"exercise_id"`
-	SetNumber    int32           `json:"set_number"`
-	Weight       pgtype.Float8   `json:"weight"`
-	RestDuration pgtype.Interval `json:"rest_duration"`
-	Notes        pgtype.Text     `json:"notes"`
+	ExerciseID   int64  `json:"exercise_id"`
+	SetNumber    int32  `json:"set_number"`
+	Weight       int32  `json:"weight"`
+	RestDuration string `json:"rest_duration"`
+	Notes        string `json:"notes"`
 }
 
 func (q *Queries) CreateSet(ctx context.Context, arg CreateSetParams) (Set, error) {
@@ -41,6 +39,7 @@ func (q *Queries) CreateSet(ctx context.Context, arg CreateSetParams) (Set, erro
 		&i.Weight,
 		&i.RestDuration,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -56,7 +55,7 @@ func (q *Queries) DeleteSet(ctx context.Context, setID int64) error {
 }
 
 const getSet = `-- name: GetSet :one
-SELECT set_id, exercise_id, set_number, weight, rest_duration, notes
+SELECT set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
 FROM Set
 WHERE set_id = $1
 `
@@ -71,12 +70,13 @@ func (q *Queries) GetSet(ctx context.Context, setID int64) (Set, error) {
 		&i.Weight,
 		&i.RestDuration,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listSets = `-- name: ListSets :many
-SELECT set_id, exercise_id, set_number, weight, rest_duration, notes
+SELECT set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
 FROM Set
 WHERE exercise_id = $1
 ORDER BY set_id -- You can change the ORDER BY clause to order by a different column if needed
@@ -106,6 +106,7 @@ func (q *Queries) ListSets(ctx context.Context, arg ListSetsParams) ([]Set, erro
 			&i.Weight,
 			&i.RestDuration,
 			&i.Notes,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -121,15 +122,15 @@ const updateSet = `-- name: UpdateSet :one
 UPDATE Set
 SET set_number = $2, weight = $3, rest_duration = $4, notes = $5
 WHERE set_id = $1
-RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes
+RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
 `
 
 type UpdateSetParams struct {
-	SetID        int64           `json:"set_id"`
-	SetNumber    int32           `json:"set_number"`
-	Weight       pgtype.Float8   `json:"weight"`
-	RestDuration pgtype.Interval `json:"rest_duration"`
-	Notes        pgtype.Text     `json:"notes"`
+	SetID        int64  `json:"set_id"`
+	SetNumber    int32  `json:"set_number"`
+	Weight       int32  `json:"weight"`
+	RestDuration string `json:"rest_duration"`
+	Notes        string `json:"notes"`
 }
 
 func (q *Queries) UpdateSet(ctx context.Context, arg UpdateSetParams) (Set, error) {
@@ -148,6 +149,7 @@ func (q *Queries) UpdateSet(ctx context.Context, arg UpdateSetParams) (Set, erro
 		&i.Weight,
 		&i.RestDuration,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }

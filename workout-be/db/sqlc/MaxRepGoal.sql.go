@@ -7,21 +7,19 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createMaxRepGoal = `-- name: CreateMaxRepGoal :one
 INSERT INTO MaxRepGoal (username, exercise_id, goal_reps, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING goal_id, username, exercise_id, goal_reps, notes
+RETURNING goal_id, username, exercise_id, goal_reps, notes, created_at
 `
 
 type CreateMaxRepGoalParams struct {
-	Username   string      `json:"username"`
-	ExerciseID int64       `json:"exercise_id"`
-	GoalReps   int32       `json:"goal_reps"`
-	Notes      pgtype.Text `json:"notes"`
+	Username   string `json:"username"`
+	ExerciseID int64  `json:"exercise_id"`
+	GoalReps   int32  `json:"goal_reps"`
+	Notes      string `json:"notes"`
 }
 
 func (q *Queries) CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalParams) (Maxrepgoal, error) {
@@ -38,6 +36,7 @@ func (q *Queries) CreateMaxRepGoal(ctx context.Context, arg CreateMaxRepGoalPara
 		&i.ExerciseID,
 		&i.GoalReps,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -53,7 +52,7 @@ func (q *Queries) DeleteMaxRepGoal(ctx context.Context, goalID int64) error {
 }
 
 const getMaxRepGoal = `-- name: GetMaxRepGoal :one
-SELECT goal_id, username, exercise_id, goal_reps, notes
+SELECT goal_id, username, exercise_id, goal_reps, notes, created_at
 FROM MaxRepGoal
 WHERE goal_id = $1
 `
@@ -67,12 +66,13 @@ func (q *Queries) GetMaxRepGoal(ctx context.Context, goalID int64) (Maxrepgoal, 
 		&i.ExerciseID,
 		&i.GoalReps,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listMaxRepGoals = `-- name: ListMaxRepGoals :many
-SELECT goal_id, username, exercise_id, goal_reps, notes
+SELECT goal_id, username, exercise_id, goal_reps, notes, created_at
 FROM MaxRepGoal
 WHERE username = $1 AND exercise_id = $2
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
@@ -107,6 +107,7 @@ func (q *Queries) ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams
 			&i.ExerciseID,
 			&i.GoalReps,
 			&i.Notes,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -122,14 +123,14 @@ const updateMaxRepGoal = `-- name: UpdateMaxRepGoal :one
 UPDATE MaxRepGoal
 SET exercise_id = $2, goal_reps = $3, notes = $4
 WHERE goal_id = $1
-RETURNING goal_id, username, exercise_id, goal_reps, notes
+RETURNING goal_id, username, exercise_id, goal_reps, notes, created_at
 `
 
 type UpdateMaxRepGoalParams struct {
-	GoalID     int64       `json:"goal_id"`
-	ExerciseID int64       `json:"exercise_id"`
-	GoalReps   int32       `json:"goal_reps"`
-	Notes      pgtype.Text `json:"notes"`
+	GoalID     int64  `json:"goal_id"`
+	ExerciseID int64  `json:"exercise_id"`
+	GoalReps   int32  `json:"goal_reps"`
+	Notes      string `json:"notes"`
 }
 
 func (q *Queries) UpdateMaxRepGoal(ctx context.Context, arg UpdateMaxRepGoalParams) (Maxrepgoal, error) {
@@ -146,6 +147,7 @@ func (q *Queries) UpdateMaxRepGoal(ctx context.Context, arg UpdateMaxRepGoalPara
 		&i.ExerciseID,
 		&i.GoalReps,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }

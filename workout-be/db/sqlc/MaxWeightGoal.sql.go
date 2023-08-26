@@ -7,21 +7,19 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createMaxWeightGoal = `-- name: CreateMaxWeightGoal :one
 INSERT INTO MaxWeightGoal (username, exercise_id, goal_weight, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING goal_id, username, exercise_id, goal_weight, notes
+RETURNING goal_id, username, exercise_id, goal_weight, notes, created_at
 `
 
 type CreateMaxWeightGoalParams struct {
-	Username   string      `json:"username"`
-	ExerciseID int64       `json:"exercise_id"`
-	GoalWeight float64     `json:"goal_weight"`
-	Notes      pgtype.Text `json:"notes"`
+	Username   string `json:"username"`
+	ExerciseID int64  `json:"exercise_id"`
+	GoalWeight int32  `json:"goal_weight"`
+	Notes      string `json:"notes"`
 }
 
 func (q *Queries) CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGoalParams) (Maxweightgoal, error) {
@@ -38,6 +36,7 @@ func (q *Queries) CreateMaxWeightGoal(ctx context.Context, arg CreateMaxWeightGo
 		&i.ExerciseID,
 		&i.GoalWeight,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -53,7 +52,7 @@ func (q *Queries) DeleteMaxWeightGoal(ctx context.Context, goalID int64) error {
 }
 
 const getMaxWeightGoal = `-- name: GetMaxWeightGoal :one
-SELECT goal_id, username, exercise_id, goal_weight, notes
+SELECT goal_id, username, exercise_id, goal_weight, notes, created_at
 FROM MaxWeightGoal
 WHERE goal_id = $1
 `
@@ -67,12 +66,13 @@ func (q *Queries) GetMaxWeightGoal(ctx context.Context, goalID int64) (Maxweight
 		&i.ExerciseID,
 		&i.GoalWeight,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listMaxWeightGoals = `-- name: ListMaxWeightGoals :many
-SELECT goal_id, username, exercise_id, goal_weight, notes
+SELECT goal_id, username, exercise_id, goal_weight, notes, created_at
 FROM MaxWeightGoal
 WHERE username = $1 AND exercise_id = $2
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
@@ -107,6 +107,7 @@ func (q *Queries) ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoals
 			&i.ExerciseID,
 			&i.GoalWeight,
 			&i.Notes,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -122,14 +123,14 @@ const updateMaxWeightGoal = `-- name: UpdateMaxWeightGoal :one
 UPDATE MaxWeightGoal
 SET exercise_id = $2, goal_weight = $3, notes = $4
 WHERE goal_id = $1
-RETURNING goal_id, username, exercise_id, goal_weight, notes
+RETURNING goal_id, username, exercise_id, goal_weight, notes, created_at
 `
 
 type UpdateMaxWeightGoalParams struct {
-	GoalID     int64       `json:"goal_id"`
-	ExerciseID int64       `json:"exercise_id"`
-	GoalWeight float64     `json:"goal_weight"`
-	Notes      pgtype.Text `json:"notes"`
+	GoalID     int64  `json:"goal_id"`
+	ExerciseID int64  `json:"exercise_id"`
+	GoalWeight int32  `json:"goal_weight"`
+	Notes      string `json:"notes"`
 }
 
 func (q *Queries) UpdateMaxWeightGoal(ctx context.Context, arg UpdateMaxWeightGoalParams) (Maxweightgoal, error) {
@@ -146,6 +147,7 @@ func (q *Queries) UpdateMaxWeightGoal(ctx context.Context, arg UpdateMaxWeightGo
 		&i.ExerciseID,
 		&i.GoalWeight,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }

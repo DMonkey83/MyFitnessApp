@@ -10,4 +10,7 @@ sqlc:
 test: 
 	cd workout-be && go test -v -cover ./...
 
+server:
+	cd workout-be && go run main.go
+
 .PHONY: migrateup migratedown sqlc test

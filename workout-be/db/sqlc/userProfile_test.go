@@ -16,7 +16,7 @@ func CreateRandomUserProfile(t *testing.T) Userprofile {
 		FullName:      util.GetRandomUsername(15),
 		Age:           int32(util.GetRandomAmount(16, 50)),
 		Gender:        "male",
-		HeightCm:      float64(util.GetRandomAmount(150, 220)),
+		HeightCm:      int32(util.GetRandomAmount(150, 220)),
 		PreferredUnit: WeightunitKg,
 	}
 
@@ -58,7 +58,7 @@ func TestUpdateUserProfile(t *testing.T) {
 		FullName:      util.GetRandomEmail(8),
 		Age:           int32(util.GetRandomAmount(16, 50)),
 		Gender:        "female",
-		HeightCm:      float64(util.GetRandomAmount(150, 220)),
+		HeightCm:      int32(util.GetRandomAmount(150, 220)),
 		PreferredUnit: WeightunitKg,
 	}
 

@@ -2,20 +2,20 @@ package api
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
 	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type createUserProfileRequest struct {
 	FullName      string        `json:"full_name" binding:"required"`
 	Age           int32         `json:"age" binding:"required"`
 	Gender        string        `json:"gender" binding:"required,oneof=female male"`
-	HeightCm      float64       `json:"height_cm" binding:"required"`
-	HeightFtIn    pgtype.Text   `json:"height_ft_in"`
+	HeightCm      int32         `json:"height_cm" binding:"required"`
+	HeightFtIn    string        `json:"height_ft_in"`
 	PreferredUnit db.Weightunit `json:"preferred_unit" binding:"required,oneof=kg lb"`
 }
 
@@ -24,11 +24,12 @@ type getUserProfileRequest struct {
 }
 
 type updateUserProfileRequest struct {
+	Username      string        `uri:"username" binding:"required,min=1"`
 	FullName      string        `json:"full_name"`
 	Age           int32         `json:"age"`
 	Gender        string        `json:"gender" binding:"oneof=female male"`
-	HeightCm      float64       `json:"height_cm"`
-	HeightFtIn    pgtype.Text   `json:"height_ft_in"`
+	HeightCm      int32         `json:"height_cm"`
+	HeightFtIn    string        `json:"height_ft_in"`
 	PreferredUnit db.Weightunit `json:"preferred_unit" binding:"oneof=kg lb"`
 }
 
@@ -100,7 +101,9 @@ func (server *Server) updateUserProfile(ctx *gin.Context) {
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 
 	// Check if the profile being updated belongs to the authenticated user
-	if authPayload.Username != ctx.Param("username") {
+	if authPayload.Username != req.Username {
+		log.Println("auth", authPayload.Username, req.Username)
+		log.Println("req", ctx.Param("username"))
 		err := errors.New("profile doesn't belong to the authenticated user")
 		ctx.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return

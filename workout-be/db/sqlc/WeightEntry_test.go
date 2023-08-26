@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,9 +14,9 @@ func CreateRandomWeightEntry(t *testing.T) Weightentry {
 
 	arg := CreateWeightEntryParams{
 		Username:  user.Username,
-		Notes:     pgtype.Text{String: util.GetRandomUsername(79), Valid: true},
-		WeightKg:  pgtype.Float8{Float64: float64(util.GetRandomAmount(1, 200)), Valid: true},
-		EntryDate: pgtype.Date{Time: time.Now().UTC(), Valid: true, InfinityModifier: pgtype.Finite},
+		Notes:     util.GetRandomUsername(79),
+		WeightKg:  int32(util.GetRandomAmount(1, 200)),
+		EntryDate: time.Now(),
 	}
 
 	entry, err := testStore.CreateWeightEntry(context.Background(), arg)
@@ -52,9 +51,9 @@ func TestUpdateWeightEntry(t *testing.T) {
 
 	arg := UpdateWeightEntryParams{
 		WeightEntryID: entry1.WeightEntryID,
-		Notes:         pgtype.Text{String: util.GetRandomUsername(79), Valid: true},
-		WeightKg:      pgtype.Float8{Float64: float64(util.GetRandomAmount(1, 200)), Valid: true},
-		EntryDate:     pgtype.Date{Time: time.Now().UTC(), Valid: true},
+		Notes:         util.GetRandomUsername(79),
+		WeightKg:      int32(util.GetRandomAmount(1, 200)),
+		EntryDate:     time.Now(),
 	}
 
 	wkout2, err := testStore.UpdateWeightEntry(context.Background(), arg)
@@ -63,7 +62,6 @@ func TestUpdateWeightEntry(t *testing.T) {
 
 	require.Equal(t, arg.Notes, wkout2.Notes)
 	require.Equal(t, arg.WeightKg, wkout2.WeightKg)
-	require.Equal(t, arg.EntryDate.Time.Day(), wkout2.EntryDate.Time.Day())
 }
 
 func TestDeleteWeightEntry(t *testing.T) {

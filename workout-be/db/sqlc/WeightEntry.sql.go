@@ -7,22 +7,21 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const createWeightEntry = `-- name: CreateWeightEntry :one
 INSERT INTO WeightEntry (username, entry_date, weight_kg, weight_lb, notes)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
+RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes, created_at
 `
 
 type CreateWeightEntryParams struct {
-	Username  string        `json:"username"`
-	EntryDate pgtype.Date   `json:"entry_date"`
-	WeightKg  pgtype.Float8 `json:"weight_kg"`
-	WeightLb  pgtype.Float8 `json:"weight_lb"`
-	Notes     pgtype.Text   `json:"notes"`
+	Username  string    `json:"username"`
+	EntryDate time.Time `json:"entry_date"`
+	WeightKg  int32     `json:"weight_kg"`
+	WeightLb  int32     `json:"weight_lb"`
+	Notes     string    `json:"notes"`
 }
 
 func (q *Queries) CreateWeightEntry(ctx context.Context, arg CreateWeightEntryParams) (Weightentry, error) {
@@ -41,6 +40,7 @@ func (q *Queries) CreateWeightEntry(ctx context.Context, arg CreateWeightEntryPa
 		&i.WeightKg,
 		&i.WeightLb,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -56,7 +56,7 @@ func (q *Queries) DeleteWeightEntry(ctx context.Context, weightEntryID int64) er
 }
 
 const getWeightEntry = `-- name: GetWeightEntry :one
-SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
+SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes, created_at
 FROM WeightEntry
 WHERE weight_entry_id = $1
 `
@@ -71,12 +71,13 @@ func (q *Queries) GetWeightEntry(ctx context.Context, weightEntryID int64) (Weig
 		&i.WeightKg,
 		&i.WeightLb,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listWeightEntries = `-- name: ListWeightEntries :many
-SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
+SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes, created_at
 FROM WeightEntry
 WHERE username = $1
 ORDER BY weight_entry_id -- You can change the ORDER BY clause to order by a different column if needed
@@ -106,6 +107,7 @@ func (q *Queries) ListWeightEntries(ctx context.Context, arg ListWeightEntriesPa
 			&i.WeightKg,
 			&i.WeightLb,
 			&i.Notes,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -121,15 +123,15 @@ const updateWeightEntry = `-- name: UpdateWeightEntry :one
 UPDATE WeightEntry
 SET entry_date = $2, weight_kg = $3, weight_lb = $4, notes = $5
 WHERE weight_entry_id = $1
-RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
+RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes, created_at
 `
 
 type UpdateWeightEntryParams struct {
-	WeightEntryID int64         `json:"weight_entry_id"`
-	EntryDate     pgtype.Date   `json:"entry_date"`
-	WeightKg      pgtype.Float8 `json:"weight_kg"`
-	WeightLb      pgtype.Float8 `json:"weight_lb"`
-	Notes         pgtype.Text   `json:"notes"`
+	WeightEntryID int64     `json:"weight_entry_id"`
+	EntryDate     time.Time `json:"entry_date"`
+	WeightKg      int32     `json:"weight_kg"`
+	WeightLb      int32     `json:"weight_lb"`
+	Notes         string    `json:"notes"`
 }
 
 func (q *Queries) UpdateWeightEntry(ctx context.Context, arg UpdateWeightEntryParams) (Weightentry, error) {
@@ -148,6 +150,7 @@ func (q *Queries) UpdateWeightEntry(ctx context.Context, arg UpdateWeightEntryPa
 		&i.WeightKg,
 		&i.WeightLb,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }

@@ -5,24 +5,23 @@ import (
 	"testing"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
 func CreateRandomReps(t *testing.T) Rep {
 	set := CreateRandomSet(t)
 	arg := CreateRepParams{
-		SetID:     set.SetID,
-		RepNumber: int32(util.GetRandomAmount(1, 20)),
-		Completed: pgtype.Bool{Bool: false, Valid: true},
-		Notes:     pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
+		SetID:            set.SetID,
+		RepNumber:        int32(util.GetRandomAmount(1, 20)),
+		CompletionStatus: CompletionenumIncomplete,
+		Notes:            util.GetRandomUsername(100),
 	}
 
 	rep, err := testStore.CreateRep(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, rep)
 
-	require.Equal(t, arg.Completed, rep.Completed)
+	require.Equal(t, arg.CompletionStatus, rep.CompletionStatus)
 	require.Equal(t, arg.Notes, rep.Notes)
 	require.Equal(t, arg.RepNumber, rep.RepNumber)
 	require.Equal(t, arg.SetID, rep.SetID)
@@ -51,14 +50,14 @@ func TestUpdateReps(t *testing.T) {
 	rep1 := CreateRandomReps(t)
 
 	arg := UpdateRepParams{
-		RepID:     rep1.RepID,
-		RepNumber: int32(util.GetRandomAmount(1, 20)),
-		Completed: pgtype.Bool{Bool: true, Valid: true},
-		Notes:     pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
+		RepID:            rep1.RepID,
+		RepNumber:        int32(util.GetRandomAmount(1, 20)),
+		CompletionStatus: CompletionenumCompleted,
+		Notes:            util.GetRandomUsername(100),
 	}
 
 	rep2, err := testStore.UpdateRep(context.Background(), arg)
-	require.Equal(t, arg.Completed, rep2.Completed)
+	require.Equal(t, arg.CompletionStatus, rep2.CompletionStatus)
 	require.Equal(t, arg.RepNumber, rep2.RepNumber)
 	require.Equal(t, arg.Notes, rep2.Notes)
 	require.NoError(t, err)

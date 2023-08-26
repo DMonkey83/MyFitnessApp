@@ -39,9 +39,14 @@ func (server *Server) setupRouter() {
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
 	authRoutes.POST("/userProfiles", server.createUserProfile)
-	authRoutes.GET("/userProfiles/:id", server.getUserProfile)
+	authRoutes.GET("/userProfiles/:username", server.getUserProfile)
 	authRoutes.GET("/userProfiles", server.getUserProfile)
 	authRoutes.PATCH("/userProfiles", server.updateUserProfile)
+
+	authRoutes.POST("/workouts", server.createWorkout)
+	authRoutes.GET("/workouts/:workout_id", server.getWorkout)
+	authRoutes.GET("/workouts", server.getWorkout)
+	authRoutes.PATCH("/workouts", server.updateWorkout)
 
 	server.router = router
 

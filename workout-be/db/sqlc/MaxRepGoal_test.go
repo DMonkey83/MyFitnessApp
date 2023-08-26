@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,7 +15,7 @@ func CreateRandomMaxRepGoal(t *testing.T) Maxrepgoal {
 		Username:   ru.Username,
 		ExerciseID: ex.ExerciseID,
 		GoalReps:   int32(util.GetRandomAmount(1, 100)),
-		Notes:      pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
+		Notes:      util.GetRandomUsername(100),
 	}
 
 	maxRepG, err := testStore.CreateMaxRepGoal(context.Background(), arg)

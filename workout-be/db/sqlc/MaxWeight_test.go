@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,8 +14,8 @@ func CreateRandomMaxWeightGoal(t *testing.T) Maxweightgoal {
 	arg := CreateMaxWeightGoalParams{
 		Username:   ru.Username,
 		ExerciseID: ex.ExerciseID,
-		GoalWeight: float64(util.GetRandomAmount(1, 100)),
-		Notes:      pgtype.Text{String: util.GetRandomUsername(100), Valid: true},
+		GoalWeight: int32(util.GetRandomAmount(1, 100)),
+		Notes:      util.GetRandomUsername(100),
 	}
 
 	maxWG, err := testStore.CreateMaxWeightGoal(context.Background(), arg)

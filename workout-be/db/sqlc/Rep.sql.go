@@ -7,28 +7,26 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createRep = `-- name: CreateRep :one
-INSERT INTO Rep (set_id, rep_number, completed, notes)
+INSERT INTO Rep (set_id, rep_number, completion_status, notes)
 VALUES ($1, $2, $3, $4)
-RETURNING rep_id, set_id, rep_number, completed, notes
+RETURNING rep_id, set_id, rep_number, completion_status, notes, created_at
 `
 
 type CreateRepParams struct {
-	SetID     int64       `json:"set_id"`
-	RepNumber int32       `json:"rep_number"`
-	Completed pgtype.Bool `json:"completed"`
-	Notes     pgtype.Text `json:"notes"`
+	SetID            int64          `json:"set_id"`
+	RepNumber        int32          `json:"rep_number"`
+	CompletionStatus Completionenum `json:"completion_status"`
+	Notes            string         `json:"notes"`
 }
 
 func (q *Queries) CreateRep(ctx context.Context, arg CreateRepParams) (Rep, error) {
 	row := q.db.QueryRow(ctx, createRep,
 		arg.SetID,
 		arg.RepNumber,
-		arg.Completed,
+		arg.CompletionStatus,
 		arg.Notes,
 	)
 	var i Rep
@@ -36,8 +34,9 @@ func (q *Queries) CreateRep(ctx context.Context, arg CreateRepParams) (Rep, erro
 		&i.RepID,
 		&i.SetID,
 		&i.RepNumber,
-		&i.Completed,
+		&i.CompletionStatus,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -53,7 +52,7 @@ func (q *Queries) DeleteRep(ctx context.Context, repID int64) error {
 }
 
 const getRep = `-- name: GetRep :one
-SELECT rep_id, set_id, rep_number, completed, notes
+SELECT rep_id, set_id, rep_number, completion_status, notes, created_at
 FROM Rep
 WHERE rep_id = $1
 `
@@ -65,14 +64,15 @@ func (q *Queries) GetRep(ctx context.Context, repID int64) (Rep, error) {
 		&i.RepID,
 		&i.SetID,
 		&i.RepNumber,
-		&i.Completed,
+		&i.CompletionStatus,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listReps = `-- name: ListReps :many
-SELECT rep_id, set_id, rep_number, completed, notes
+SELECT rep_id, set_id, rep_number, completion_status, notes, created_at
 FROM Rep
 WHERE set_id = $1
 ORDER BY rep_id -- You can change the ORDER BY clause to order by a different column if needed
@@ -99,8 +99,9 @@ func (q *Queries) ListReps(ctx context.Context, arg ListRepsParams) ([]Rep, erro
 			&i.RepID,
 			&i.SetID,
 			&i.RepNumber,
-			&i.Completed,
+			&i.CompletionStatus,
 			&i.Notes,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -114,23 +115,23 @@ func (q *Queries) ListReps(ctx context.Context, arg ListRepsParams) ([]Rep, erro
 
 const updateRep = `-- name: UpdateRep :one
 UPDATE Rep
-SET rep_number = $2, completed = $3, notes = $4
+SET rep_number = $2, completion_status = $3, notes = $4
 WHERE rep_id = $1
-RETURNING rep_id, set_id, rep_number, completed, notes
+RETURNING rep_id, set_id, rep_number, completion_status, notes, created_at
 `
 
 type UpdateRepParams struct {
-	RepID     int64       `json:"rep_id"`
-	RepNumber int32       `json:"rep_number"`
-	Completed pgtype.Bool `json:"completed"`
-	Notes     pgtype.Text `json:"notes"`
+	RepID            int64          `json:"rep_id"`
+	RepNumber        int32          `json:"rep_number"`
+	CompletionStatus Completionenum `json:"completion_status"`
+	Notes            string         `json:"notes"`
 }
 
 func (q *Queries) UpdateRep(ctx context.Context, arg UpdateRepParams) (Rep, error) {
 	row := q.db.QueryRow(ctx, updateRep,
 		arg.RepID,
 		arg.RepNumber,
-		arg.Completed,
+		arg.CompletionStatus,
 		arg.Notes,
 	)
 	var i Rep
@@ -138,8 +139,9 @@ func (q *Queries) UpdateRep(ctx context.Context, arg UpdateRepParams) (Rep, erro
 		&i.RepID,
 		&i.SetID,
 		&i.RepNumber,
-		&i.Completed,
+		&i.CompletionStatus,
 		&i.Notes,
+		&i.CreatedAt,
 	)
 	return i, err
 }

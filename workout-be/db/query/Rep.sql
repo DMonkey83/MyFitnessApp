@@ -1,6 +1,6 @@
 
 -- name: CreateRep :one
-INSERT INTO Rep (set_id, rep_number, completed, notes)
+INSERT INTO Rep (set_id, rep_number, completion_status, notes)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
@@ -15,7 +15,7 @@ WHERE rep_id = $1;
 
 -- name: UpdateRep :one
 UPDATE Rep
-SET rep_number = $2, completed = $3, notes = $4
+SET rep_number = $2, completion_status = $3, notes = $4
 WHERE rep_id = $1
 RETURNING *;
 
