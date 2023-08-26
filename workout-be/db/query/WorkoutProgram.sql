@@ -19,7 +19,15 @@ SET program_name = $2, description = $3
 WHERE program_id = $1
 RETURNING *;
 
--- name: ListWorkoutprograms :many
+-- name: ListWorkoutprogramsForUser :many
+SELECT *
+FROM WorkoutProgram
+WHERE username = $1
+ORDER BY program_name -- You can change the ORDER BY clause to order by a different column if needed
+LIMIT $2
+OFFSET $3;
+
+-- name: ListAllWorkoutprograms :many
 SELECT *
 FROM WorkoutProgram
 ORDER BY program_name -- You can change the ORDER BY clause to order by a different column if needed

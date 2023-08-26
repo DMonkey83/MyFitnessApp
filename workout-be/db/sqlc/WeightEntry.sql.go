@@ -78,18 +78,20 @@ func (q *Queries) GetWeightEntry(ctx context.Context, weightEntryID int64) (Weig
 const listWeightEntries = `-- name: ListWeightEntries :many
 SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes
 FROM WeightEntry
+WHERE username = $1
 ORDER BY weight_entry_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $3
 `
 
 type ListWeightEntriesParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
 }
 
 func (q *Queries) ListWeightEntries(ctx context.Context, arg ListWeightEntriesParams) ([]Weightentry, error) {
-	rows, err := q.db.Query(ctx, listWeightEntries, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listWeightEntries, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

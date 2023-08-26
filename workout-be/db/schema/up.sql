@@ -30,7 +30,10 @@ CREATE TABLE IF NOT EXISTS "User" (
     username VARCHAR(255) NOT NULL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    password_changed_at timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00z'
+    password_changed_at timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00z',
+
+  -- Add a unique constraint to the email column
+    CONSTRAINT unique_email UNIQUE (email)
 );
 
 -- UserProfile Table

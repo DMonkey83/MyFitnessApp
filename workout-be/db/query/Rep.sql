@@ -22,6 +22,7 @@ RETURNING *;
 -- name: ListReps :many
 SELECT *
 FROM Rep
+WHERE set_id = $1
 ORDER BY rep_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2;
+LIMIT $2
+OFFSET $3;

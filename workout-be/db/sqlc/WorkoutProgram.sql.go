@@ -63,7 +63,7 @@ func (q *Queries) GetWorkoutprogram(ctx context.Context, programID int64) (Worko
 	return i, err
 }
 
-const listWorkoutprograms = `-- name: ListWorkoutprograms :many
+const listAllWorkoutprograms = `-- name: ListAllWorkoutprograms :many
 SELECT program_id, username, program_name, description
 FROM WorkoutProgram
 ORDER BY program_name -- You can change the ORDER BY clause to order by a different column if needed
@@ -71,13 +71,53 @@ LIMIT $1
 OFFSET $2
 `
 
-type ListWorkoutprogramsParams struct {
+type ListAllWorkoutprogramsParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListWorkoutprograms(ctx context.Context, arg ListWorkoutprogramsParams) ([]Workoutprogram, error) {
-	rows, err := q.db.Query(ctx, listWorkoutprograms, arg.Limit, arg.Offset)
+func (q *Queries) ListAllWorkoutprograms(ctx context.Context, arg ListAllWorkoutprogramsParams) ([]Workoutprogram, error) {
+	rows, err := q.db.Query(ctx, listAllWorkoutprograms, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Workoutprogram{}
+	for rows.Next() {
+		var i Workoutprogram
+		if err := rows.Scan(
+			&i.ProgramID,
+			&i.Username,
+			&i.ProgramName,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listWorkoutprogramsForUser = `-- name: ListWorkoutprogramsForUser :many
+SELECT program_id, username, program_name, description
+FROM WorkoutProgram
+WHERE username = $1
+ORDER BY program_name -- You can change the ORDER BY clause to order by a different column if needed
+LIMIT $2
+OFFSET $3
+`
+
+type ListWorkoutprogramsForUserParams struct {
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
+}
+
+func (q *Queries) ListWorkoutprogramsForUser(ctx context.Context, arg ListWorkoutprogramsForUserParams) ([]Workoutprogram, error) {
+	rows, err := q.db.Query(ctx, listWorkoutprogramsForUser, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

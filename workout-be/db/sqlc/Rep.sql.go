@@ -74,18 +74,20 @@ func (q *Queries) GetRep(ctx context.Context, repID int64) (Rep, error) {
 const listReps = `-- name: ListReps :many
 SELECT rep_id, set_id, rep_number, completed, notes
 FROM Rep
+WHERE set_id = $1
 ORDER BY rep_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $3
 `
 
 type ListRepsParams struct {
+	SetID  int64 `json:"set_id"`
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListReps(ctx context.Context, arg ListRepsParams) ([]Rep, error) {
-	rows, err := q.db.Query(ctx, listReps, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listReps, arg.SetID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

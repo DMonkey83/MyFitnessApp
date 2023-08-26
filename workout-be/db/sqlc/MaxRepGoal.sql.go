@@ -74,18 +74,26 @@ func (q *Queries) GetMaxRepGoal(ctx context.Context, goalID int64) (Maxrepgoal, 
 const listMaxRepGoals = `-- name: ListMaxRepGoals :many
 SELECT goal_id, username, exercise_id, goal_reps, notes
 FROM MaxRepGoal
+WHERE username = $1 AND exercise_id = $2
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2
+LIMIT $3
+OFFSET $4
 `
 
 type ListMaxRepGoalsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Username   string `json:"username"`
+	ExerciseID int64  `json:"exercise_id"`
+	Limit      int32  `json:"limit"`
+	Offset     int32  `json:"offset"`
 }
 
 func (q *Queries) ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams) ([]Maxrepgoal, error) {
-	rows, err := q.db.Query(ctx, listMaxRepGoals, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listMaxRepGoals,
+		arg.Username,
+		arg.ExerciseID,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

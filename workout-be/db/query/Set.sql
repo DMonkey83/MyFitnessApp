@@ -22,6 +22,7 @@ RETURNING *;
 -- name: ListSets :many
 SELECT *
 FROM Set
+WHERE exercise_id = $1
 ORDER BY set_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2;
+LIMIT $2
+OFFSET $3;

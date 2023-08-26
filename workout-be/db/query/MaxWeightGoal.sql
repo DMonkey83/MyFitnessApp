@@ -22,6 +22,7 @@ RETURNING *;
 -- name: ListMaxWeightGoals :many
 SELECT *
 FROM MaxWeightGoal
+WHERE username = $1 AND exercise_id = $2
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2;
+LIMIT $3
+OFFSET $4;

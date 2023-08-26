@@ -71,35 +71,76 @@ func (q *Queries) GetExercise(ctx context.Context, exerciseID int64) (Exercise, 
 	return i, err
 }
 
-const listExercise = `-- name: ListExercise :many
-SELECT exercise_id, exercise_name, description
+const listAllExercise = `-- name: ListAllExercise :many
+SELECT exercise_id, workout_id, exercise_name, description, equipment_id
 FROM Exercise
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $1
 OFFSET $2
 `
 
-type ListExerciseParams struct {
+type ListAllExerciseParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-type ListExerciseRow struct {
-	ExerciseID   int64       `json:"exercise_id"`
-	ExerciseName string      `json:"exercise_name"`
-	Description  pgtype.Text `json:"description"`
-}
-
-func (q *Queries) ListExercise(ctx context.Context, arg ListExerciseParams) ([]ListExerciseRow, error) {
-	rows, err := q.db.Query(ctx, listExercise, arg.Limit, arg.Offset)
+func (q *Queries) ListAllExercise(ctx context.Context, arg ListAllExerciseParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listAllExercise, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListExerciseRow{}
+	items := []Exercise{}
 	for rows.Next() {
-		var i ListExerciseRow
-		if err := rows.Scan(&i.ExerciseID, &i.ExerciseName, &i.Description); err != nil {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ExerciseID,
+			&i.WorkoutID,
+			&i.ExerciseName,
+			&i.Description,
+			&i.EquipmentID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listWorkoutExercise = `-- name: ListWorkoutExercise :many
+SELECT exercise_id, workout_id, exercise_name, description, equipment_id
+FROM Exercise
+WHERE workout_id = $1
+ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
+LIMIT $2
+OFFSET $3
+`
+
+type ListWorkoutExerciseParams struct {
+	WorkoutID int64 `json:"workout_id"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
+}
+
+func (q *Queries) ListWorkoutExercise(ctx context.Context, arg ListWorkoutExerciseParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listWorkoutExercise, arg.WorkoutID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Exercise{}
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ExerciseID,
+			&i.WorkoutID,
+			&i.ExerciseName,
+			&i.Description,
+			&i.EquipmentID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -72,20 +72,21 @@ func (q *Queries) GetWorkout(ctx context.Context, workoutID int64) (Workout, err
 }
 
 const listWorkouts = `-- name: ListWorkouts :many
-SELECT workout_id, username, workout_date, workout_duration, notes
-FROM Workout
+SELECT workout_id, username, workout_date, workout_duration, notes FROM Workout
+WHERE username = $1
 ORDER BY workout_date -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $3
 `
 
 type ListWorkoutsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
 }
 
 func (q *Queries) ListWorkouts(ctx context.Context, arg ListWorkoutsParams) ([]Workout, error) {
-	rows, err := q.db.Query(ctx, listWorkouts, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listWorkouts, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

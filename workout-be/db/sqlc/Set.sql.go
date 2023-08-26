@@ -78,18 +78,20 @@ func (q *Queries) GetSet(ctx context.Context, setID int64) (Set, error) {
 const listSets = `-- name: ListSets :many
 SELECT set_id, exercise_id, set_number, weight, rest_duration, notes
 FROM Set
+WHERE exercise_id = $1
 ORDER BY set_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $3
 `
 
 type ListSetsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	ExerciseID int64 `json:"exercise_id"`
+	Limit      int32 `json:"limit"`
+	Offset     int32 `json:"offset"`
 }
 
 func (q *Queries) ListSets(ctx context.Context, arg ListSetsParams) ([]Set, error) {
-	rows, err := q.db.Query(ctx, listSets, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listSets, arg.ExerciseID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

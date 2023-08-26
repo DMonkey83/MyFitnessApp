@@ -21,6 +21,7 @@ RETURNING *;
 -- name: ListWeightEntries :many
 SELECT *
 FROM WeightEntry
+WHERE username = $1
 ORDER BY weight_entry_id -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2;
+LIMIT $2
+OFFSET $3;
