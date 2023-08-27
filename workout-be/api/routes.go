@@ -32,6 +32,17 @@ func (server *Server) SetupRouter() {
 	authRoutes.GET("/workouts", server.getWorkout)
 	authRoutes.PATCH("/workouts", server.updateWorkout)
 
+	// workouts
+	authRoutes.POST("/workout-logs", server.createWorkoutLog)
+	authRoutes.GET("/workout-logs/:log_id", server.getWorkoutLog)
+	authRoutes.GET("/workout-logs", server.getWorkoutLog)
+	authRoutes.PATCH("/workout-logs", server.updateWorkoutLog)
+
+	// exercises
+	authRoutes.POST("/exercise-logs", server.createExerciseLog)
+	authRoutes.GET("/exercise-logs/:exercise_id", server.getExerciseLog)
+	authRoutes.PATCH("/exercise-logs", server.updateExerciseLog)
+
 	// exercises
 	authRoutes.POST("/exercises", server.createExercise)
 	authRoutes.GET("/exercises/:exercise_id", server.getExercise)
@@ -43,11 +54,21 @@ func (server *Server) SetupRouter() {
 	authRoutes.GET("/available-exercises/:id", server.getAvailablePlanExercise)
 	authRoutes.PATCH("/available-exercises", server.updateAvailablePlanExercise)
 
+	// exercises
+	authRoutes.POST("/one_off-exercises", server.createOneOffExerciseLog)
+	authRoutes.GET("/one-off-exercises/:id", server.getOneOffExerciseLog)
+	authRoutes.PATCH("/one-off-exercises", server.updateOneOffExerciseLog)
+
 	// Sets
 	authRoutes.POST("/sets", server.createSet)
 	authRoutes.GET("/sets/:id", server.getSet)
 	authRoutes.GET("/sets", server.getSet)
 	authRoutes.PATCH("/sets", server.updateSet)
+
+	// Sets
+	authRoutes.POST("/exercise_sets", server.createExerciseSet)
+	authRoutes.GET("/exercise_sets/:set_id", server.getExerciseSet)
+	authRoutes.PATCH("/exercise_sets", server.updateExerciseSet)
 
 	// weight entry
 	authRoutes.POST("/weight", server.createWeightEntry)
