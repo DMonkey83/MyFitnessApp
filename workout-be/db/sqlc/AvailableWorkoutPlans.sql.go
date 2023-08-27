@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createAvailablePlan = `-- name: CreateAvailablePlan :one
@@ -30,7 +28,7 @@ type CreateAvailablePlanParams struct {
 	Goal            NullWorkoutgoalenum `json:"goal"`
 	Difficulty      NullDifficulty      `json:"difficulty"`
 	IsPublic        NullVisibility      `json:"is_public"`
-	CreatorUsername pgtype.Text         `json:"creator_username"`
+	CreatorUsername string              `json:"creator_username"`
 }
 
 func (q *Queries) CreateAvailablePlan(ctx context.Context, arg CreateAvailablePlanParams) (Availableworkoutplan, error) {
@@ -143,10 +141,10 @@ OFFSET $4
 `
 
 type ListAvailablePlansByCreatorParams struct {
-	PlanID          int64       `json:"plan_id"`
-	CreatorUsername pgtype.Text `json:"creator_username"`
-	Limit           int32       `json:"limit"`
-	Offset          int32       `json:"offset"`
+	PlanID          int64  `json:"plan_id"`
+	CreatorUsername string `json:"creator_username"`
+	Limit           int32  `json:"limit"`
+	Offset          int32  `json:"offset"`
 }
 
 func (q *Queries) ListAvailablePlansByCreator(ctx context.Context, arg ListAvailablePlansByCreatorParams) ([]Availableworkoutplan, error) {

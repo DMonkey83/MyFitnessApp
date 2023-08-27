@@ -8,8 +8,6 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Completionenum string
@@ -428,7 +426,7 @@ type Availableworkoutplan struct {
 	IsPublic        NullVisibility      `json:"is_public"`
 	CreatedAt       time.Time           `json:"created_at"`
 	UpdatedAt       time.Time           `json:"updated_at"`
-	CreatorUsername pgtype.Text         `json:"creator_username"`
+	CreatorUsername string              `json:"creator_username"`
 }
 
 type Exercise struct {

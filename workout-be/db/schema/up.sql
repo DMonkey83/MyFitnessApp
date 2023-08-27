@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS AvailableWorkoutPlans (
     is_public Visibility,
     created_at timestamptz NOT NULL DEFAULT(now()),
     updated_at timestamptz NOT NULL DEFAULT(now()),
-    creator_username VARCHAR(255) REFERENCES "User"(username)
+    creator_username VARCHAR(255) REFERENCES "User"(username) NOT NULL
     -- Other metadata or information about the plan
     -- ...
 );
