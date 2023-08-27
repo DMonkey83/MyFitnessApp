@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"time"
 
@@ -12,9 +11,16 @@ import (
 )
 
 type createWorkoutRequest struct {
-	WorkoutDate     time.Time `json:"workout_date"`
-	WorkoutDuration string    `json:"workout_duration"`
-	Notes           string    `json:"notes"`
+	Username            string          `json:"username"`
+	WorkoutDate         time.Time       `json:"workout_date"`
+	WorkoutDuration     string          `json:"workout_duration"`
+	Notes               string          `json:"notes"`
+	FatigueLevel        db.Fatiguelevel `json:"fatigue_level"`
+	TotalCaloriesBurned int32           `json:"total_calories_burned"`
+	TotalDistance       int32           `json:"total_distance"`
+	TotalRepetitions    int32           `json:"total_repetitions"`
+	TotalSets           int32           `json:"total_sets"`
+	TotalWeightLifted   int32           `json:"total_weight_lifted"`
 }
 
 type getWorkoutRequest struct {
@@ -22,11 +28,16 @@ type getWorkoutRequest struct {
 }
 
 type updateWorkoutRequest struct {
-	Username        string    `json:"username" binding:"required"`
-	WokroutID       int64     `json:"workout_id" binding:"required,min=1"`
-	WorkoutDate     time.Time `json:"workout_date"`
-	WorkoutDuration string    `json:"workout_duration" binding:"min=2"`
-	Notes           string    `json:"notes"`
+	WorkoutID           int64           `json:"workout_id"`
+	WorkoutDate         time.Time       `json:"workout_date"`
+	WorkoutDuration     string          `json:"workout_duration"`
+	Notes               string          `json:"notes"`
+	FatigueLevel        db.Fatiguelevel `json:"fatigue_level"`
+	TotalSets           int32           `json:"total_sets"`
+	TotalDistance       int32           `json:"total_distance"`
+	TotalRepetitions    int32           `json:"total_repetitions"`
+	TotalWeightLifted   int32           `json:"total_weight_lifted"`
+	TotalCaloriesBurned int32           `json:"total_calories_burned"`
 }
 
 func (server *Server) createWorkout(ctx *gin.Context) {
@@ -91,22 +102,17 @@ func (server *Server) updateWorkout(ctx *gin.Context) {
 		return
 	}
 
-	log.Print(req)
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-
-	// Check if the profile being updated belongs to the authenticated user
-	if authPayload.Username != req.Username {
-		err := errors.New("profile doesn't belong to the authenticated user")
-		ctx.JSON(http.StatusUnauthorized, ErrorResponse(err))
-		return
-	}
-
 	arg := db.UpdateWorkoutParams{
-		Username:        authPayload.Username,
-		WorkoutID:       req.WokroutID,
-		WorkoutDate:     req.WorkoutDate,
-		WorkoutDuration: req.WorkoutDuration,
-		Notes:           req.Notes,
+		WorkoutID:           req.WorkoutID,
+		WorkoutDate:         req.WorkoutDate,
+		WorkoutDuration:     req.WorkoutDuration,
+		Notes:               req.Notes,
+		FatigueLevel:        req.FatigueLevel,
+		TotalSets:           req.TotalSets,
+		TotalDistance:       req.TotalDistance,
+		TotalRepetitions:    req.TotalRepetitions,
+		TotalWeightLifted:   req.TotalWeightLifted,
+		TotalCaloriesBurned: req.TotalCaloriesBurned,
 	}
 
 	workout, err := server.store.UpdateWorkout(ctx, arg)

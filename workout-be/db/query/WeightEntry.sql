@@ -14,8 +14,8 @@ WHERE weight_entry_id = $1;
 
 -- name: UpdateWeightEntry :one
 UPDATE WeightEntry
-SET entry_date = $2, weight_kg = $3, weight_lb = $4, notes = $5
-WHERE weight_entry_id = $1
+SET entry_date = $3, weight_kg = $4, weight_lb = $5, notes = $6
+WHERE weight_entry_id = $1 AND username = $2
 RETURNING *;
 
 -- name: ListWeightEntries :many

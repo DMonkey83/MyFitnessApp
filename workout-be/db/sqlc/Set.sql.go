@@ -10,34 +10,37 @@ import (
 )
 
 const createSet = `-- name: CreateSet :one
-INSERT INTO Set (exercise_id, set_number, weight, rest_duration, notes)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
+INSERT INTO Set (exercise_name, set_number, weight, rest_duration, notes, reps_completed)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING set_id, exercise_name, set_number, weight, rest_duration, reps_completed, notes, created_at
 `
 
 type CreateSetParams struct {
-	ExerciseID   int64  `json:"exercise_id"`
-	SetNumber    int32  `json:"set_number"`
-	Weight       int32  `json:"weight"`
-	RestDuration string `json:"rest_duration"`
-	Notes        string `json:"notes"`
+	ExerciseName  string `json:"exercise_name"`
+	SetNumber     int32  `json:"set_number"`
+	Weight        int32  `json:"weight"`
+	RestDuration  string `json:"rest_duration"`
+	Notes         string `json:"notes"`
+	RepsCompleted int32  `json:"reps_completed"`
 }
 
 func (q *Queries) CreateSet(ctx context.Context, arg CreateSetParams) (Set, error) {
 	row := q.db.QueryRow(ctx, createSet,
-		arg.ExerciseID,
+		arg.ExerciseName,
 		arg.SetNumber,
 		arg.Weight,
 		arg.RestDuration,
 		arg.Notes,
+		arg.RepsCompleted,
 	)
 	var i Set
 	err := row.Scan(
 		&i.SetID,
-		&i.ExerciseID,
+		&i.ExerciseName,
 		&i.SetNumber,
 		&i.Weight,
 		&i.RestDuration,
+		&i.RepsCompleted,
 		&i.Notes,
 		&i.CreatedAt,
 	)
@@ -55,7 +58,7 @@ func (q *Queries) DeleteSet(ctx context.Context, setID int64) error {
 }
 
 const getSet = `-- name: GetSet :one
-SELECT set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
+SELECT set_id, exercise_name, set_number, weight, rest_duration, reps_completed, notes, created_at
 FROM Set
 WHERE set_id = $1
 `
@@ -65,10 +68,11 @@ func (q *Queries) GetSet(ctx context.Context, setID int64) (Set, error) {
 	var i Set
 	err := row.Scan(
 		&i.SetID,
-		&i.ExerciseID,
+		&i.ExerciseName,
 		&i.SetNumber,
 		&i.Weight,
 		&i.RestDuration,
+		&i.RepsCompleted,
 		&i.Notes,
 		&i.CreatedAt,
 	)
@@ -76,22 +80,22 @@ func (q *Queries) GetSet(ctx context.Context, setID int64) (Set, error) {
 }
 
 const listSets = `-- name: ListSets :many
-SELECT set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
+SELECT set_id, exercise_name, set_number, weight, rest_duration, reps_completed, notes, created_at
 FROM Set
-WHERE exercise_id = $1
+WHERE exercise_name = $1
 ORDER BY set_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $2
 OFFSET $3
 `
 
 type ListSetsParams struct {
-	ExerciseID int64 `json:"exercise_id"`
-	Limit      int32 `json:"limit"`
-	Offset     int32 `json:"offset"`
+	ExerciseName string `json:"exercise_name"`
+	Limit        int32  `json:"limit"`
+	Offset       int32  `json:"offset"`
 }
 
 func (q *Queries) ListSets(ctx context.Context, arg ListSetsParams) ([]Set, error) {
-	rows, err := q.db.Query(ctx, listSets, arg.ExerciseID, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listSets, arg.ExerciseName, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -101,10 +105,11 @@ func (q *Queries) ListSets(ctx context.Context, arg ListSetsParams) ([]Set, erro
 		var i Set
 		if err := rows.Scan(
 			&i.SetID,
-			&i.ExerciseID,
+			&i.ExerciseName,
 			&i.SetNumber,
 			&i.Weight,
 			&i.RestDuration,
+			&i.RepsCompleted,
 			&i.Notes,
 			&i.CreatedAt,
 		); err != nil {
@@ -122,7 +127,7 @@ const updateSet = `-- name: UpdateSet :one
 UPDATE Set
 SET set_number = $2, weight = $3, rest_duration = $4, notes = $5
 WHERE set_id = $1
-RETURNING set_id, exercise_id, set_number, weight, rest_duration, notes, created_at
+RETURNING set_id, exercise_name, set_number, weight, rest_duration, reps_completed, notes, created_at
 `
 
 type UpdateSetParams struct {
@@ -144,10 +149,11 @@ func (q *Queries) UpdateSet(ctx context.Context, arg UpdateSetParams) (Set, erro
 	var i Set
 	err := row.Scan(
 		&i.SetID,
-		&i.ExerciseID,
+		&i.ExerciseName,
 		&i.SetNumber,
 		&i.Weight,
 		&i.RestDuration,
+		&i.RepsCompleted,
 		&i.Notes,
 		&i.CreatedAt,
 	)

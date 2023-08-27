@@ -50,6 +50,7 @@ func TestUpdateWeightEntry(t *testing.T) {
 	entry1 := CreateRandomWeightEntry(t)
 
 	arg := UpdateWeightEntryParams{
+		Username:      entry1.Username,
 		WeightEntryID: entry1.WeightEntryID,
 		Notes:         util.GetRandomUsername(79),
 		WeightKg:      int32(util.GetRandomAmount(1, 200)),

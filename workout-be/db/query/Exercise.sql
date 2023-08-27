@@ -1,35 +1,27 @@
 -- name: CreateExercise :one
-INSERT INTO Exercise (exercise_name,workout_id, description, equipment_name, muscle_group_name)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO Exercise (exercise_name, description, equipment_required, muscle_group_name)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: GetExercise :one
 SELECT *
 FROM Exercise
-WHERE exercise_id = $1;
+WHERE exercise_name = $1;
 
 -- name: DeleteExercise :exec
 DELETE FROM Exercise
-WHERE exercise_id = $1;
+WHERE exercise_name = $1;
 
 -- name: UpdateExercise :one
 UPDATE Exercise
-SET exercise_name = $2, description = $3, equipment_name = $4, muscle_group_name = $5
-WHERE exercise_id = $1
+SET description = $2, equipment_required = $3, muscle_group_name = $4
+WHERE exercise_name = $1
 RETURNING *;
-
--- name: ListWorkoutExercise :many
-SELECT *
-FROM Exercise
-WHERE workout_id = $1
-ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $2
-OFFSET $3;
 
 -- name: ListEquipmentExercise :many
 SELECT *
 FROM Exercise
-WHERE equipment_name = $1
+WHERE equipment_required = $1
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $2
 OFFSET $3;

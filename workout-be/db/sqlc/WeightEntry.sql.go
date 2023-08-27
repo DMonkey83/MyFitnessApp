@@ -121,13 +121,14 @@ func (q *Queries) ListWeightEntries(ctx context.Context, arg ListWeightEntriesPa
 
 const updateWeightEntry = `-- name: UpdateWeightEntry :one
 UPDATE WeightEntry
-SET entry_date = $2, weight_kg = $3, weight_lb = $4, notes = $5
-WHERE weight_entry_id = $1
+SET entry_date = $3, weight_kg = $4, weight_lb = $5, notes = $6
+WHERE weight_entry_id = $1 AND username = $2
 RETURNING weight_entry_id, username, entry_date, weight_kg, weight_lb, notes, created_at
 `
 
 type UpdateWeightEntryParams struct {
 	WeightEntryID int64     `json:"weight_entry_id"`
+	Username      string    `json:"username"`
 	EntryDate     time.Time `json:"entry_date"`
 	WeightKg      int32     `json:"weight_kg"`
 	WeightLb      int32     `json:"weight_lb"`
@@ -137,6 +138,7 @@ type UpdateWeightEntryParams struct {
 func (q *Queries) UpdateWeightEntry(ctx context.Context, arg UpdateWeightEntryParams) (Weightentry, error) {
 	row := q.db.QueryRow(ctx, updateWeightEntry,
 		arg.WeightEntryID,
+		arg.Username,
 		arg.EntryDate,
 		arg.WeightKg,
 		arg.WeightLb,

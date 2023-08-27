@@ -1,7 +1,18 @@
-
 -- name: CreateWorkout :one
-INSERT INTO Workout (username, workout_date, workout_duration, notes)
-VALUES ($1, $2, $3, $4)
+INSERT INTO Workout 
+  (
+  username, 
+  workout_date, 
+  workout_duration, 
+  notes, 
+  fatigue_level,
+  total_calories_burned,
+  total_distance,
+  total_repetitions,
+  total_sets,
+  total_weight_lifted
+  )
+VALUES ($1, $2, $3, $4,$5,$6,$7,$8,$9,$10)
 RETURNING *;
 
 -- name: GetWorkout :one
@@ -15,7 +26,16 @@ WHERE workout_id = $1;
 
 -- name: UpdateWorkout :one
 UPDATE Workout
-SET username = $2, workout_date = $3, workout_duration = $4, notes = $5
+SET 
+workout_date = $2, 
+workout_duration = $3, 
+notes = $4,
+fatigue_level = $5, 
+total_sets =$6,
+total_distance=$7,
+total_repetitions=$8,
+total_weight_lifted=$9,
+total_calories_burned =$10
 WHERE workout_id = $1
 RETURNING *;
 

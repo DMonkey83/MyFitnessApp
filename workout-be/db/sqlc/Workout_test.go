@@ -13,10 +13,16 @@ func CreateRandomWorkout(t *testing.T) Workout {
 	user := CreateRandomUser(t)
 
 	arg := CreateWorkoutParams{
-		Username:        user.Username,
-		Notes:           util.GetRandomUsername(100),
-		WorkoutDuration: "0h10m",
-		WorkoutDate:     time.Now(),
+		Username:            user.Username,
+		Notes:               util.GetRandomUsername(100),
+		WorkoutDuration:     "0h10m",
+		WorkoutDate:         time.Now(),
+		FatigueLevel:        FatiguelevelHeavy,
+		TotalCaloriesBurned: int32(util.GetRandomAmount(1, 3000)),
+		TotalDistance:       int32(util.GetRandomAmount(1, 10000)),
+		TotalRepetitions:    int32(util.GetRandomAmount(1, 100)),
+		TotalSets:           int32(util.GetRandomAmount(1, 20)),
+		TotalWeightLifted:   int32(util.GetRandomAmount(1, 2000)),
 	}
 
 	workout, err := testStore.CreateWorkout(context.Background(), arg)
@@ -50,11 +56,16 @@ func TestUpdateWorkout(t *testing.T) {
 	wkout1 := CreateRandomWorkout(t)
 
 	arg := UpdateWorkoutParams{
-		WorkoutID:       wkout1.WorkoutID,
-		Username:        wkout1.Username,
-		Notes:           wkout1.Notes,
-		WorkoutDuration: "1h",
-		WorkoutDate:     time.Now(),
+		WorkoutID:           wkout1.WorkoutID,
+		Notes:               wkout1.Notes,
+		WorkoutDuration:     "1h",
+		WorkoutDate:         time.Now(),
+		FatigueLevel:        FatiguelevelLight,
+		TotalCaloriesBurned: int32(util.GetRandomAmount(1, 3000)),
+		TotalDistance:       int32(util.GetRandomAmount(1, 10000)),
+		TotalRepetitions:    int32(util.GetRandomAmount(1, 100)),
+		TotalSets:           int32(util.GetRandomAmount(1, 20)),
+		TotalWeightLifted:   int32(util.GetRandomAmount(1, 2000)),
 	}
 
 	wkout2, err := testStore.UpdateWorkout(context.Background(), arg)
@@ -62,7 +73,6 @@ func TestUpdateWorkout(t *testing.T) {
 	require.NotEmpty(t, wkout2)
 
 	require.Equal(t, arg.WorkoutID, wkout2.WorkoutID)
-	require.Equal(t, arg.Username, wkout2.Username)
 	require.Equal(t, arg.WorkoutDuration, wkout2.WorkoutDuration)
 }
 
