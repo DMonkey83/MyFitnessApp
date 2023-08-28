@@ -418,15 +418,15 @@ type Availableplanexercise struct {
 }
 
 type Availableworkoutplan struct {
-	PlanID          int64               `json:"plan_id"`
-	PlanName        string              `json:"plan_name"`
-	Description     string              `json:"description"`
-	Goal            NullWorkoutgoalenum `json:"goal"`
-	Difficulty      NullDifficulty      `json:"difficulty"`
-	IsPublic        NullVisibility      `json:"is_public"`
-	CreatedAt       time.Time           `json:"created_at"`
-	UpdatedAt       time.Time           `json:"updated_at"`
-	CreatorUsername string              `json:"creator_username"`
+	PlanID          int64           `json:"plan_id"`
+	PlanName        string          `json:"plan_name"`
+	Description     string          `json:"description"`
+	Goal            Workoutgoalenum `json:"goal"`
+	Difficulty      Difficulty      `json:"difficulty"`
+	IsPublic        Visibility      `json:"is_public"`
+	CreatedAt       time.Time       `json:"created_at"`
+	UpdatedAt       time.Time       `json:"updated_at"`
+	CreatorUsername string          `json:"creator_username"`
 }
 
 type Exercise struct {

@@ -47,22 +47,32 @@ func (q *Queries) CreateWeightEntry(ctx context.Context, arg CreateWeightEntryPa
 
 const deleteWeightEntry = `-- name: DeleteWeightEntry :exec
 DELETE FROM WeightEntry
-WHERE weight_entry_id = $1
+WHERE weight_entry_id = $1 AND username = $2
 `
 
-func (q *Queries) DeleteWeightEntry(ctx context.Context, weightEntryID int64) error {
-	_, err := q.db.Exec(ctx, deleteWeightEntry, weightEntryID)
+type DeleteWeightEntryParams struct {
+	WeightEntryID int64  `json:"weight_entry_id"`
+	Username      string `json:"username"`
+}
+
+func (q *Queries) DeleteWeightEntry(ctx context.Context, arg DeleteWeightEntryParams) error {
+	_, err := q.db.Exec(ctx, deleteWeightEntry, arg.WeightEntryID, arg.Username)
 	return err
 }
 
 const getWeightEntry = `-- name: GetWeightEntry :one
 SELECT weight_entry_id, username, entry_date, weight_kg, weight_lb, notes, created_at
 FROM WeightEntry
-WHERE weight_entry_id = $1
+WHERE weight_entry_id = $1 AND username = $2
 `
 
-func (q *Queries) GetWeightEntry(ctx context.Context, weightEntryID int64) (Weightentry, error) {
-	row := q.db.QueryRow(ctx, getWeightEntry, weightEntryID)
+type GetWeightEntryParams struct {
+	WeightEntryID int64  `json:"weight_entry_id"`
+	Username      string `json:"username"`
+}
+
+func (q *Queries) GetWeightEntry(ctx context.Context, arg GetWeightEntryParams) (Weightentry, error) {
+	row := q.db.QueryRow(ctx, getWeightEntry, arg.WeightEntryID, arg.Username)
 	var i Weightentry
 	err := row.Scan(
 		&i.WeightEntryID,

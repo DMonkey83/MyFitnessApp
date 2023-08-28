@@ -48,22 +48,32 @@ func (q *Queries) CreateOneOffWorkoutExercise(ctx context.Context, arg CreateOne
 
 const deleteOneOffWorkoutExercise = `-- name: DeleteOneOffWorkoutExercise :exec
 DELETE FROM OneOffWorkoutExercise
-WHERE id = $1
+WHERE id = $1 AND workout_id = $2
 `
 
-func (q *Queries) DeleteOneOffWorkoutExercise(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteOneOffWorkoutExercise, id)
+type DeleteOneOffWorkoutExerciseParams struct {
+	ID        int32 `json:"id"`
+	WorkoutID int64 `json:"workout_id"`
+}
+
+func (q *Queries) DeleteOneOffWorkoutExercise(ctx context.Context, arg DeleteOneOffWorkoutExerciseParams) error {
+	_, err := q.db.Exec(ctx, deleteOneOffWorkoutExercise, arg.ID, arg.WorkoutID)
 	return err
 }
 
 const getOneOffWorkoutExercise = `-- name: GetOneOffWorkoutExercise :one
 SELECT id, workout_id, exercise_name, description, muscle_group_name, created_at
 FROM OneOffWorkoutExercise
-WHERE id = $1
+WHERE id = $1 AND workout_id = $2
 `
 
-func (q *Queries) GetOneOffWorkoutExercise(ctx context.Context, id int32) (Oneoffworkoutexercise, error) {
-	row := q.db.QueryRow(ctx, getOneOffWorkoutExercise, id)
+type GetOneOffWorkoutExerciseParams struct {
+	ID        int32 `json:"id"`
+	WorkoutID int64 `json:"workout_id"`
+}
+
+func (q *Queries) GetOneOffWorkoutExercise(ctx context.Context, arg GetOneOffWorkoutExerciseParams) (Oneoffworkoutexercise, error) {
+	row := q.db.QueryRow(ctx, getOneOffWorkoutExercise, arg.ID, arg.WorkoutID)
 	var i Oneoffworkoutexercise
 	err := row.Scan(
 		&i.ID,
@@ -77,34 +87,36 @@ func (q *Queries) GetOneOffWorkoutExercise(ctx context.Context, id int32) (Oneof
 }
 
 const listAllOneOffWorkoutExercises = `-- name: ListAllOneOffWorkoutExercises :many
-SELECT id, plan_id, exercise_name, sets, rest_duration, notes
-FROM AvailablePlanExercises
+SELECT id, workout_id, exercise_name, description, muscle_group_name, created_at
+FROM OneOffWorkoutExercise
+WHERE workout_id = $1
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $3
 `
 
 type ListAllOneOffWorkoutExercisesParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	WorkoutID int64 `json:"workout_id"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
 }
 
-func (q *Queries) ListAllOneOffWorkoutExercises(ctx context.Context, arg ListAllOneOffWorkoutExercisesParams) ([]Availableplanexercise, error) {
-	rows, err := q.db.Query(ctx, listAllOneOffWorkoutExercises, arg.Limit, arg.Offset)
+func (q *Queries) ListAllOneOffWorkoutExercises(ctx context.Context, arg ListAllOneOffWorkoutExercisesParams) ([]Oneoffworkoutexercise, error) {
+	rows, err := q.db.Query(ctx, listAllOneOffWorkoutExercises, arg.WorkoutID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Availableplanexercise{}
+	items := []Oneoffworkoutexercise{}
 	for rows.Next() {
-		var i Availableplanexercise
+		var i Oneoffworkoutexercise
 		if err := rows.Scan(
 			&i.ID,
-			&i.PlanID,
+			&i.WorkoutID,
 			&i.ExerciseName,
-			&i.Sets,
-			&i.RestDuration,
-			&i.Notes,
+			&i.Description,
+			&i.MuscleGroupName,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

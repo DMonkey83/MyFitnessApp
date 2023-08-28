@@ -23,12 +23,12 @@ RETURNING plan_id, plan_name, description, goal, difficulty, is_public, created_
 `
 
 type CreateAvailablePlanParams struct {
-	PlanName        string              `json:"plan_name"`
-	Description     string              `json:"description"`
-	Goal            NullWorkoutgoalenum `json:"goal"`
-	Difficulty      NullDifficulty      `json:"difficulty"`
-	IsPublic        NullVisibility      `json:"is_public"`
-	CreatorUsername string              `json:"creator_username"`
+	PlanName        string          `json:"plan_name"`
+	Description     string          `json:"description"`
+	Goal            Workoutgoalenum `json:"goal"`
+	Difficulty      Difficulty      `json:"difficulty"`
+	IsPublic        Visibility      `json:"is_public"`
+	CreatorUsername string          `json:"creator_username"`
 }
 
 func (q *Queries) CreateAvailablePlan(ctx context.Context, arg CreateAvailablePlanParams) (Availableworkoutplan, error) {
@@ -134,26 +134,20 @@ func (q *Queries) ListAllAvailablePlans(ctx context.Context, arg ListAllAvailabl
 const listAvailablePlansByCreator = `-- name: ListAvailablePlansByCreator :many
 SELECT plan_id, plan_name, description, goal, difficulty, is_public, created_at, updated_at, creator_username
 FROM AvailableWorkoutPlans
-WHERE plan_id = $1 AND creator_username =$2
+WHERE creator_username =$1
 ORDER BY plan_name -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $3
-OFFSET $4
+LIMIT $2
+OFFSET $3
 `
 
 type ListAvailablePlansByCreatorParams struct {
-	PlanID          int64  `json:"plan_id"`
 	CreatorUsername string `json:"creator_username"`
 	Limit           int32  `json:"limit"`
 	Offset          int32  `json:"offset"`
 }
 
 func (q *Queries) ListAvailablePlansByCreator(ctx context.Context, arg ListAvailablePlansByCreatorParams) ([]Availableworkoutplan, error) {
-	rows, err := q.db.Query(ctx, listAvailablePlansByCreator,
-		arg.PlanID,
-		arg.CreatorUsername,
-		arg.Limit,
-		arg.Offset,
-	)
+	rows, err := q.db.Query(ctx, listAvailablePlansByCreator, arg.CreatorUsername, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -195,12 +189,12 @@ RETURNING plan_id, plan_name, description, goal, difficulty, is_public, created_
 `
 
 type UpdateAvailablePlanParams struct {
-	PlanID      int64               `json:"plan_id"`
-	Description string              `json:"description"`
-	PlanName    string              `json:"plan_name"`
-	Goal        NullWorkoutgoalenum `json:"goal"`
-	Difficulty  NullDifficulty      `json:"difficulty"`
-	IsPublic    NullVisibility      `json:"is_public"`
+	PlanID      int64           `json:"plan_id"`
+	Description string          `json:"description"`
+	PlanName    string          `json:"plan_name"`
+	Goal        Workoutgoalenum `json:"goal"`
+	Difficulty  Difficulty      `json:"difficulty"`
+	IsPublic    Visibility      `json:"is_public"`
 }
 
 func (q *Queries) UpdateAvailablePlan(ctx context.Context, arg UpdateAvailablePlanParams) (Availableworkoutplan, error) {

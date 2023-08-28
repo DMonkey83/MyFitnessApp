@@ -86,7 +86,7 @@ func (q *Queries) GetMaxRepGoal(ctx context.Context, arg GetMaxRepGoalParams) (M
 const listMaxRepGoals = `-- name: ListMaxRepGoals :many
 SELECT goal_id, username, exercise_name, goal_reps, notes, created_at
 FROM MaxRepGoal
-WHERE exercise_name = $1 AND username = $2 AND goal_id = $3
+WHERE exercise_name = $1 AND username = $2
 ORDER BY goal_id -- You can change the ORDER BY clause to order by a different column if needed
 LIMIT $3
 OFFSET $4

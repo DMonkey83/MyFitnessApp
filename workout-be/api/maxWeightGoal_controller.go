@@ -11,16 +11,16 @@ import (
 )
 
 type createMaxWeightRequest struct {
-	Username     string `json:"username"`
-	ExerciseName string `json:"exercise_name"`
-	GoalWeight   int32  `json:"goal_weight"`
-	Notes        string `json:"notes"`
+	Username     string `json:"username" binding:"required"`
+	ExerciseName string `json:"exercise_name" binding:"required"`
+	GoalWeight   int32  `json:"goal_weight" binding:"required"`
+	Notes        string `json:"notes" binding:"required"`
 }
 
 type getMaxWeightRequest struct {
-	ExerciseName string `uri:"exercise_name"`
-	Username     string `uri:"username"`
-	GoalID       int64  `uri:"goal_id"`
+	ExerciseName string `uri:"exercise_name" binding:"required"`
+	Username     string `uri:"username" binding:"required"`
+	GoalID       int64  `uri:"goal_id" binding:"required"`
 }
 
 type updateMaxWeightRequest struct {
@@ -29,6 +29,12 @@ type updateMaxWeightRequest struct {
 	ExerciseName string `json:"exercise_name"`
 	GoalWeight   int32  `json:"goal_weight"`
 	Notes        string `json:"notes"`
+}
+
+type listMaxWeightRequest struct {
+	Limit        int32  `form:"limit" binding:"required,min=1"`
+	Offset       int32  `form:"offset" binding:"required,min=5,max=10"`
+	ExerciseName string `form:"exercise_name" binding:"required"`
 }
 
 func (server *Server) createMaxWeightGoal(ctx *gin.Context) {
@@ -124,4 +130,25 @@ func (server *Server) updateMaxWeightGoal(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, entry)
+}
+
+func (server *Server) listMaxWeight(ctx *gin.Context) {
+	var req listMaxWeightRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	arg := db.ListMaxWeightGoalsParams{
+		Username:     authPayload.Username,
+		Limit:        req.Limit,
+		Offset:       (req.Offset - 1) * req.Limit,
+		ExerciseName: req.ExerciseName,
+	}
+	exercises, err := server.store.ListMaxWeightGoals(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, exercises)
 }

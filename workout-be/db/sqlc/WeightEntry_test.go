@@ -37,7 +37,11 @@ func TestCreateWeightEntry(t *testing.T) {
 
 func TestGetWeightEntry(t *testing.T) {
 	entry1 := CreateRandomWeightEntry(t)
-	entry2, err := testStore.GetWeightEntry(context.Background(), entry1.WeightEntryID)
+	arg := GetWeightEntryParams{
+		WeightEntryID: entry1.WeightEntryID,
+		Username:      entry1.Username,
+	}
+	entry2, err := testStore.GetWeightEntry(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry2)
 
@@ -67,10 +71,21 @@ func TestUpdateWeightEntry(t *testing.T) {
 
 func TestDeleteWeightEntry(t *testing.T) {
 	entry1 := CreateRandomWeightEntry(t)
-	err := testStore.DeleteWeightEntry(context.Background(), entry1.WeightEntryID)
+
+	arg1 := DeleteWeightEntryParams{
+		WeightEntryID: entry1.WeightEntryID,
+		Username:      entry1.Username,
+	}
+
+	err := testStore.DeleteWeightEntry(context.Background(), arg1)
 	require.NoError(t, err)
 
-	entry2, err := testStore.GetWeightEntry(context.Background(), entry1.WeightEntryID)
+	arg2 := GetWeightEntryParams{
+		WeightEntryID: entry1.WeightEntryID,
+		Username:      entry1.Username,
+	}
+
+	entry2, err := testStore.GetWeightEntry(context.Background(), arg2)
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, entry2)

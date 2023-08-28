@@ -18,7 +18,7 @@ SET description = $2, equipment_required = $3, muscle_group_name = $4
 WHERE exercise_name = $1
 RETURNING *;
 
--- name: ListEquipmentExercise :many
+-- name: ListEquipmentExercises :many
 SELECT *
 FROM Exercise
 WHERE equipment_required = $1
@@ -26,7 +26,7 @@ ORDER BY exercise_name -- You can change the ORDER BY clause to order by a diffe
 LIMIT $2
 OFFSET $3;
 
--- name: ListMuscleGroupExercise :many
+-- name: ListMuscleGroupExercises :many
 SELECT *
 FROM Exercise
 WHERE muscle_group_name = $1
@@ -34,7 +34,7 @@ ORDER BY exercise_name -- You can change the ORDER BY clause to order by a diffe
 LIMIT $2
 OFFSET $3;
 
--- name: ListAllExercise :many
+-- name: ListAllExercises :many
 SELECT *
 FROM Exercise
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed

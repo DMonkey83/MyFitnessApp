@@ -39,7 +39,11 @@ func TestCreateOneOffWorkoutExercise(t *testing.T) {
 
 func TestGetOneOffWorkoutExercise(t *testing.T) {
 	ex1 := CreateRandomOneOffWorkoutExercise(t)
-	ex2, err := testStore.GetOneOffWorkoutExercise(context.Background(), ex1.ID)
+	arg := GetOneOffWorkoutExerciseParams{
+		ID:        ex1.ID,
+		WorkoutID: ex1.WorkoutID,
+	}
+	ex2, err := testStore.GetOneOffWorkoutExercise(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, ex2)
 
@@ -73,10 +77,18 @@ func TestUpdateOffWorkoutExercise(t *testing.T) {
 
 func TestDeleteOffWorkoutExercise(t *testing.T) {
 	ex1 := CreateRandomOneOffWorkoutExercise(t)
-	err := testStore.DeleteOneOffWorkoutExercise(context.Background(), ex1.ID)
+	arg1 := DeleteOneOffWorkoutExerciseParams{
+		ID:        ex1.ID,
+		WorkoutID: ex1.WorkoutID,
+	}
+	err := testStore.DeleteOneOffWorkoutExercise(context.Background(), arg1)
 	require.NoError(t, err)
+	arg2 := GetOneOffWorkoutExerciseParams{
+		ID:        ex1.ID,
+		WorkoutID: ex1.WorkoutID,
+	}
 
-	ex2, err := testStore.GetOneOffWorkoutExercise(context.Background(), ex1.ID)
+	ex2, err := testStore.GetOneOffWorkoutExercise(context.Background(), arg2)
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, ex2)

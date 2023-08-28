@@ -8,11 +8,11 @@ import (
 )
 
 type createAvailablePlanExerciseRequest struct {
-	ExerciseName string `json:"exercise_name"`
-	PlanID       int64  `json:"plan_id"`
-	Sets         int32  `json:"sets"`
-	RestDuration string `json:"rest_duration"`
-	Notes        string `json:"notes"`
+	ExerciseName string `json:"exercise_name" binding:"required"`
+	PlanID       int64  `json:"plan_id" binding:"required"`
+	Sets         int32  `json:"sets" binding:"required"`
+	RestDuration string `json:"rest_duration" binding:"required"`
+	Notes        string `json:"notes" binding:"required"`
 }
 
 type getAvailablePlanExerciseRequest struct {
@@ -24,6 +24,11 @@ type updateAvailablePlanExerciseRequest struct {
 	Notes        string `json:"notes"`
 	Sets         int32  `json:"sets"`
 	RestDuration string `json:"rest_duration"`
+}
+
+type listAllAvailablePlanExercisesRequest struct {
+	Limit  int32 `form:"limit" binding:"required,min=1"`
+	Offset int32 `form:"offset" binding:"required,min=5,max=10"`
 }
 
 func (server *Server) createAvailablePlanExercise(ctx *gin.Context) {
@@ -97,4 +102,23 @@ func (server *Server) updateAvailablePlanExercise(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, exercise)
+}
+
+func (server *Server) listAllAvailablePlanExercises(ctx *gin.Context) {
+	var req listAllAvailablePlanExercisesRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+
+	arg := db.ListAllAvailablePlanExercisesParams{
+		Limit:  req.Limit,
+		Offset: (req.Offset - 1) * req.Limit,
+	}
+	exercises, err := server.store.ListAllAvailablePlanExercises(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, exercises)
 }

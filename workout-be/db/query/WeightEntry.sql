@@ -6,11 +6,11 @@ RETURNING *;
 -- name: GetWeightEntry :one
 SELECT *
 FROM WeightEntry
-WHERE weight_entry_id = $1;
+WHERE weight_entry_id = $1 AND username = $2;
 
 -- name: DeleteWeightEntry :exec
 DELETE FROM WeightEntry
-WHERE weight_entry_id = $1;
+WHERE weight_entry_id = $1 AND username = $2;
 
 -- name: UpdateWeightEntry :one
 UPDATE WeightEntry

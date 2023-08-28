@@ -8,35 +8,36 @@ import (
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
 	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
 	"github.com/gin-gonic/gin"
 )
 
 type createPlanRequest struct {
-	Username    string             `json:"username"`
-	PlanName    string             `json:"plan_name"`
-	Description string             `json:"description"`
-	StartDate   time.Time          `json:"start_date"`
-	EndDate     time.Time          `json:"end_date"`
-	Goal        db.Workoutgoalenum `json:"goal" binding:"required,oneof='BuildMuscle' 'Lose Weight' 'Improve Endurance' 'Maintain Fitness' 'Tone Body' 'Custom'"`
-	Difficulty  db.Difficulty      `json:"difficulty" binding:"required,oneof='Very Light' 'Light' 'Moderate' 'Heavy' 'Very Heavy'"`
-	IsPublic    db.Visibility      `json:"is_public" binding:"required,oneof=Private Public"`
+	Username    string               `json:"username" binding:"required"`
+	PlanName    string               `json:"plan_name" binding:"required"`
+	Description string               `json:"description" binding:"required"`
+	StartDate   time.Time            `json:"start_date" binding:"required"`
+	EndDate     time.Time            `json:"end_date" binding:"required"`
+	Goal        util.Workoutgoalenum `json:"goal" binding:"required,goal"`
+	Difficulty  util.Difficulty      `json:"difficulty" binding:"required,difficulty"`
+	IsPublic    util.Visibility      `json:"is_public" binding:"required,is_public"`
 }
 
 type getPlanRequest struct {
-	PlanID   int64  `uri:"plan_id"`
-	Username string `uri:"username"`
+	PlanID   int64  `uri:"plan_id" binding:"required"`
+	Username string `uri:"username" binding:"required"`
 }
 
 type updatePlanRequest struct {
-	PlanID      int64              `json:"plan_id"`
-	Username    string             `json:"username"`
-	PlanName    string             `json:"plan_name"`
-	Description string             `json:"description"`
-	StartDate   time.Time          `json:"start_date"`
-	EndDate     time.Time          `json:"end_date"`
-	Goal        db.Workoutgoalenum `json:"goal" binding:"required,oneof='BuildMuscle' 'Lose Weight' 'Improve Endurance' 'Maintain Fitness' 'Tone Body' 'Custom'"`
-	Difficulty  db.Difficulty      `json:"difficulty" binding:"required,oneof='Very Light' 'Light' 'Moderate' 'Heavy' 'Very Heavy'"`
-	IsPublic    db.Visibility      `json:"is_public" binding:"required,oneof=Private Public"`
+	PlanID      int64                `json:"plan_id"`
+	Username    string               `json:"username"`
+	PlanName    string               `json:"plan_name"`
+	Description string               `json:"description"`
+	StartDate   time.Time            `json:"start_date"`
+	EndDate     time.Time            `json:"end_date"`
+	Goal        util.Workoutgoalenum `json:"goal" binding:"goal"`
+	Difficulty  util.Difficulty      `json:"difficulty" binding:"difficulty"`
+	IsPublic    util.Visibility      `json:"is_public" binding:"is_public"`
 }
 
 func (server *Server) createPlan(ctx *gin.Context) {
@@ -53,9 +54,9 @@ func (server *Server) createPlan(ctx *gin.Context) {
 		Description: req.Description,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
-		Goal:        req.Goal,
-		Difficulty:  req.Difficulty,
-		IsPublic:    req.IsPublic,
+		Goal:        db.Workoutgoalenum(req.Goal),
+		Difficulty:  db.Difficulty(req.Difficulty),
+		IsPublic:    db.Visibility(req.IsPublic),
 	}
 	plan, err := server.store.CreatePlan(ctx, arg)
 
@@ -128,9 +129,9 @@ func (server *Server) updatePlan(ctx *gin.Context) {
 		Description: req.Description,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
-		Goal:        req.Goal,
-		Difficulty:  req.Difficulty,
-		IsPublic:    req.IsPublic,
+		Goal:        db.Workoutgoalenum(req.Goal),
+		Difficulty:  db.Difficulty(req.Difficulty),
+		IsPublic:    db.Visibility(req.IsPublic),
 	}
 
 	userProfile, err := server.store.UpdatePlan(ctx, arg)

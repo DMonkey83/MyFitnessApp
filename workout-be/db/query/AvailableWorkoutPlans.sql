@@ -33,10 +33,10 @@ RETURNING *;
 -- name: ListAvailablePlansByCreator :many
 SELECT *
 FROM AvailableWorkoutPlans
-WHERE plan_id = $1 AND creator_username =$2
+WHERE creator_username =$1
 ORDER BY plan_name -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $3
-OFFSET $4;
+LIMIT $2
+OFFSET $3;
 
 -- name: ListAllAvailablePlans :many
 SELECT *

@@ -31,12 +31,12 @@ type Querier interface {
 	DeleteExerciseSet(ctx context.Context, setID int64) error
 	DeleteMaxRepGoal(ctx context.Context, arg DeleteMaxRepGoalParams) error
 	DeleteMaxWeightGoal(ctx context.Context, arg DeleteMaxWeightGoalParams) error
-	DeleteOneOffWorkoutExercise(ctx context.Context, id int32) error
+	DeleteOneOffWorkoutExercise(ctx context.Context, arg DeleteOneOffWorkoutExerciseParams) error
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
 	DeleteSet(ctx context.Context, setID int64) error
 	DeleteUser(ctx context.Context, username string) error
 	DeleteUserProfile(ctx context.Context, username string) error
-	DeleteWeightEntry(ctx context.Context, weightEntryID int64) error
+	DeleteWeightEntry(ctx context.Context, arg DeleteWeightEntryParams) error
 	DeleteWorkout(ctx context.Context, workoutID int64) error
 	DeleteWorkoutLog(ctx context.Context, logID int64) error
 	GetAvailablePlan(ctx context.Context, planID int64) (Availableworkoutplan, error)
@@ -46,25 +46,25 @@ type Querier interface {
 	GetExerciseSet(ctx context.Context, setID int64) (Exerciseset, error)
 	GetMaxRepGoal(ctx context.Context, arg GetMaxRepGoalParams) (Maxrepgoal, error)
 	GetMaxWeightGoal(ctx context.Context, arg GetMaxWeightGoalParams) (Maxweightgoal, error)
-	GetOneOffWorkoutExercise(ctx context.Context, id int32) (Oneoffworkoutexercise, error)
+	GetOneOffWorkoutExercise(ctx context.Context, arg GetOneOffWorkoutExerciseParams) (Oneoffworkoutexercise, error)
 	GetPlan(ctx context.Context, arg GetPlanParams) (Workoutplan, error)
 	GetSet(ctx context.Context, setID int64) (Set, error)
 	GetUser(ctx context.Context, username string) (GetUserRow, error)
 	GetUserProfile(ctx context.Context, username string) (GetUserProfileRow, error)
-	GetWeightEntry(ctx context.Context, weightEntryID int64) (Weightentry, error)
+	GetWeightEntry(ctx context.Context, arg GetWeightEntryParams) (Weightentry, error)
 	GetWorkout(ctx context.Context, workoutID int64) (Workout, error)
 	GetWorkoutLog(ctx context.Context, logID int64) (Workoutlog, error)
 	ListAllAvailablePlanExercises(ctx context.Context, arg ListAllAvailablePlanExercisesParams) ([]Availableplanexercise, error)
 	ListAllAvailablePlans(ctx context.Context, arg ListAllAvailablePlansParams) ([]Availableworkoutplan, error)
-	ListAllExercise(ctx context.Context, arg ListAllExerciseParams) ([]Exercise, error)
-	ListAllOneOffWorkoutExercises(ctx context.Context, arg ListAllOneOffWorkoutExercisesParams) ([]Availableplanexercise, error)
+	ListAllExercises(ctx context.Context, arg ListAllExercisesParams) ([]Exercise, error)
+	ListAllOneOffWorkoutExercises(ctx context.Context, arg ListAllOneOffWorkoutExercisesParams) ([]Oneoffworkoutexercise, error)
 	ListAvailablePlansByCreator(ctx context.Context, arg ListAvailablePlansByCreatorParams) ([]Availableworkoutplan, error)
-	ListEquipmentExercise(ctx context.Context, arg ListEquipmentExerciseParams) ([]Exercise, error)
+	ListEquipmentExercises(ctx context.Context, arg ListEquipmentExercisesParams) ([]Exercise, error)
 	ListExerciseLog(ctx context.Context, arg ListExerciseLogParams) ([]Exerciselog, error)
 	ListExerciseSets(ctx context.Context, arg ListExerciseSetsParams) ([]Exerciseset, error)
 	ListMaxRepGoals(ctx context.Context, arg ListMaxRepGoalsParams) ([]Maxrepgoal, error)
 	ListMaxWeightGoals(ctx context.Context, arg ListMaxWeightGoalsParams) ([]Maxweightgoal, error)
-	ListMuscleGroupExercise(ctx context.Context, arg ListMuscleGroupExerciseParams) ([]Exercise, error)
+	ListMuscleGroupExercises(ctx context.Context, arg ListMuscleGroupExercisesParams) ([]Exercise, error)
 	ListSets(ctx context.Context, arg ListSetsParams) ([]Set, error)
 	ListWeightEntries(ctx context.Context, arg ListWeightEntriesParams) ([]Weightentry, error)
 	ListWorkoutLogs(ctx context.Context, arg ListWorkoutLogsParams) ([]Workoutlog, error)

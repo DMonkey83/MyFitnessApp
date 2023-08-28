@@ -8,11 +8,11 @@ import (
 )
 
 type createSetRequest struct {
-	ExerciseName string `json:"exercise_name"`
-	SetNumber    int32  `json:"set_number"`
-	Weight       int32  `json:"weight"`
-	RestDuration string `json:"rest_duration"`
-	Notes        string `json:"notes"`
+	ExerciseName string `json:"exercise_name" binding:"required"`
+	SetNumber    int32  `json:"set_number" binding:"required"`
+	Weight       int32  `json:"weight" binding:"required"`
+	RestDuration string `json:"rest_duration" binding:"required"`
+	Notes        string `json:"notes" binding:"required"`
 }
 
 type getSetRequest struct {

@@ -5,16 +5,17 @@ import (
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
 	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
 	"github.com/gin-gonic/gin"
 )
 
 type createAvailablePlanRequest struct {
-	PlanName        string                 `json:"plan_name"`
-	Description     string                 `json:"description"`
-	Goal            db.NullWorkoutgoalenum `json:"goal" binding:"required,oneof='BuildMuscle' 'Lose Weight' 'Improve Endurance' 'Maintain Fitness' 'Tone Body' 'Custom'"`
-	Difficulty      db.NullDifficulty      `json:"difficulty" binding:"required,oneof='Very Light' 'Light' 'Moderate' 'Heavy' 'Very Heavy'"`
-	IsPublic        db.NullVisibility      `json:"is_public" binding:"required,oneof=Private Public"`
-	CreatorUsername string                 `json:"creator_username"`
+	PlanName        string               `json:"plan_name" binding:"required"`
+	Description     string               `json:"description" binding:"required"`
+	Goal            util.Workoutgoalenum `json:"goal" binding:"required,goal"`
+	Difficulty      util.Difficulty      `json:"difficulty" binding:"required,difficulty"`
+	IsPublic        util.Visibility      `json:"is_public" binding:"required,is_public"`
+	CreatorUsername string               `json:"creator_username" binding:"required"`
 }
 
 type getAvailablePlanRequest struct {
@@ -22,12 +23,23 @@ type getAvailablePlanRequest struct {
 }
 
 type updateAvailablePlanRequest struct {
-	PlanID      int64                  `json:"plan_id"`
-	Description string                 `json:"description"`
-	PlanName    string                 `json:"plan_name"`
-	Goal        db.NullWorkoutgoalenum `json:"goal" binding:"required,oneof='BuildMuscle' 'Lose Weight' 'Improve Endurance' 'Maintain Fitness' 'Tone Body' 'Custom'"`
-	Difficulty  db.NullDifficulty      `json:"difficulty" binding:"required,oneof='Very Light' 'Light' 'Moderate' 'Heavy' 'Very Heavy'"`
-	IsPublic    db.NullVisibility      `json:"is_public" binding:"required,oneof=Private Public"`
+	PlanID      int64                `json:"plan_id"`
+	Description string               `json:"description"`
+	PlanName    string               `json:"plan_name"`
+	Goal        util.Workoutgoalenum `json:"goal" binding:"required,goal"`
+	Difficulty  util.Difficulty      `json:"difficulty" binding:"required,difficulty"`
+	IsPublic    util.Visibility      `json:"is_public" binding:"required,is_public"`
+}
+
+type listAllAvailablePlansRequest struct {
+	Limit  int32 `form:"limit" binding:"required,min=1"`
+	Offset int32 `form:"offset" binding:"required"`
+}
+
+type listAllAvailablePlansByCreatorRequest struct {
+	Limit           int32  `form:"limit" binding:"required,min=5,max=20"`
+	Offset          int32  `form:"offset" binding:"required,min=1"`
+	CreatorUsername string `form:"creator" binding:"required"`
 }
 
 func (server *Server) createAvailablePlan(ctx *gin.Context) {
@@ -42,9 +54,9 @@ func (server *Server) createAvailablePlan(ctx *gin.Context) {
 		CreatorUsername: authPayload.Username,
 		PlanName:        req.PlanName,
 		Description:     req.Description,
-		Goal:            req.Goal,
-		Difficulty:      req.Difficulty,
-		IsPublic:        req.IsPublic,
+		Goal:            db.Workoutgoalenum(req.Goal),
+		Difficulty:      db.Difficulty(req.Difficulty),
+		IsPublic:        db.Visibility(req.IsPublic),
 	}
 	plan, err := server.store.CreateAvailablePlan(ctx, arg)
 
@@ -92,9 +104,9 @@ func (server *Server) updateAvailablePlan(ctx *gin.Context) {
 		PlanID:      req.PlanID,
 		PlanName:    req.PlanName,
 		Description: req.Description,
-		Goal:        req.Goal,
-		Difficulty:  req.Difficulty,
-		IsPublic:    req.IsPublic,
+		Goal:        db.Workoutgoalenum(req.Goal),
+		Difficulty:  db.Difficulty(req.Difficulty),
+		IsPublic:    db.Visibility(req.IsPublic),
 	}
 
 	userProfile, err := server.store.UpdateAvailablePlan(ctx, arg)
@@ -104,4 +116,43 @@ func (server *Server) updateAvailablePlan(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, userProfile)
+}
+
+func (server *Server) listAllAvailablePlansByCreator(ctx *gin.Context) {
+	var req listAllAvailablePlansByCreatorRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+
+	arg := db.ListAvailablePlansByCreatorParams{
+		Limit:           req.Limit,
+		Offset:          (req.Offset - 1) * req.Limit,
+		CreatorUsername: req.CreatorUsername,
+	}
+	plans, err := server.store.ListAvailablePlansByCreator(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, plans)
+}
+
+func (server *Server) listAllAvailablePlans(ctx *gin.Context) {
+	var req listAllAvailablePlansRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+
+	arg := db.ListAllAvailablePlansParams{
+		Limit:  req.Limit,
+		Offset: (req.Offset - 1) * req.Limit,
+	}
+	plans, err := server.store.ListAllAvailablePlans(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, plans)
 }

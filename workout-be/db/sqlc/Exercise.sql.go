@@ -69,7 +69,7 @@ func (q *Queries) GetExercise(ctx context.Context, exerciseName string) (Exercis
 	return i, err
 }
 
-const listAllExercise = `-- name: ListAllExercise :many
+const listAllExercises = `-- name: ListAllExercises :many
 SELECT exercise_name, equipment_required, description, muscle_group_name, created_at
 FROM Exercise
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
@@ -77,13 +77,13 @@ LIMIT $1
 OFFSET $2
 `
 
-type ListAllExerciseParams struct {
+type ListAllExercisesParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListAllExercise(ctx context.Context, arg ListAllExerciseParams) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, listAllExercise, arg.Limit, arg.Offset)
+func (q *Queries) ListAllExercises(ctx context.Context, arg ListAllExercisesParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listAllExercises, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (q *Queries) ListAllExercise(ctx context.Context, arg ListAllExerciseParams
 	return items, nil
 }
 
-const listEquipmentExercise = `-- name: ListEquipmentExercise :many
+const listEquipmentExercises = `-- name: ListEquipmentExercises :many
 SELECT exercise_name, equipment_required, description, muscle_group_name, created_at
 FROM Exercise
 WHERE equipment_required = $1
@@ -117,14 +117,14 @@ LIMIT $2
 OFFSET $3
 `
 
-type ListEquipmentExerciseParams struct {
+type ListEquipmentExercisesParams struct {
 	EquipmentRequired Equipmenttype `json:"equipment_required"`
 	Limit             int32         `json:"limit"`
 	Offset            int32         `json:"offset"`
 }
 
-func (q *Queries) ListEquipmentExercise(ctx context.Context, arg ListEquipmentExerciseParams) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, listEquipmentExercise, arg.EquipmentRequired, arg.Limit, arg.Offset)
+func (q *Queries) ListEquipmentExercises(ctx context.Context, arg ListEquipmentExercisesParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listEquipmentExercises, arg.EquipmentRequired, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (q *Queries) ListEquipmentExercise(ctx context.Context, arg ListEquipmentEx
 	return items, nil
 }
 
-const listMuscleGroupExercise = `-- name: ListMuscleGroupExercise :many
+const listMuscleGroupExercises = `-- name: ListMuscleGroupExercises :many
 SELECT exercise_name, equipment_required, description, muscle_group_name, created_at
 FROM Exercise
 WHERE muscle_group_name = $1
@@ -158,14 +158,14 @@ LIMIT $2
 OFFSET $3
 `
 
-type ListMuscleGroupExerciseParams struct {
+type ListMuscleGroupExercisesParams struct {
 	MuscleGroupName Musclegroupenum `json:"muscle_group_name"`
 	Limit           int32           `json:"limit"`
 	Offset          int32           `json:"offset"`
 }
 
-func (q *Queries) ListMuscleGroupExercise(ctx context.Context, arg ListMuscleGroupExerciseParams) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, listMuscleGroupExercise, arg.MuscleGroupName, arg.Limit, arg.Offset)
+func (q *Queries) ListMuscleGroupExercises(ctx context.Context, arg ListMuscleGroupExercisesParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, listMuscleGroupExercises, arg.MuscleGroupName, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

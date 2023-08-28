@@ -7,16 +7,17 @@ import (
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
 	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
 	"github.com/gin-gonic/gin"
 )
 
 type createUserProfileRequest struct {
-	FullName      string        `json:"full_name" binding:"required"`
-	Age           int32         `json:"age" binding:"required"`
-	Gender        string        `json:"gender" binding:"required,oneof=female male"`
-	HeightCm      int32         `json:"height_cm" binding:"required"`
-	HeightFtIn    string        `json:"height_ft_in"`
-	PreferredUnit db.Weightunit `json:"preferred_unit" binding:"required,oneof=kg lb"`
+	FullName      string          `json:"full_name" binding:"required"`
+	Age           int32           `json:"age" binding:"required"`
+	Gender        string          `json:"gender" binding:"required,oneof=female male"`
+	HeightCm      int32           `json:"height_cm" binding:"required"`
+	HeightFtIn    string          `json:"height_ft_in"`
+	PreferredUnit util.Weightunit `json:"preferred_unit" binding:"required,weight_unit"`
 }
 
 type getUserProfileRequest struct {
@@ -24,13 +25,13 @@ type getUserProfileRequest struct {
 }
 
 type updateUserProfileRequest struct {
-	Username      string        `uri:"username" binding:"required,min=1"`
-	FullName      string        `json:"full_name"`
-	Age           int32         `json:"age"`
-	Gender        string        `json:"gender" binding:"oneof=female male"`
-	HeightCm      int32         `json:"height_cm"`
-	HeightFtIn    string        `json:"height_ft_in"`
-	PreferredUnit db.Weightunit `json:"preferred_unit" binding:"oneof=kg lb"`
+	Username      string          `uri:"username" binding:"required,min=1"`
+	FullName      string          `json:"full_name"`
+	Age           int32           `json:"age"`
+	Gender        string          `json:"gender" binding:"oneof=female male"`
+	HeightCm      int32           `json:"height_cm"`
+	HeightFtIn    string          `json:"height_ft_in"`
+	PreferredUnit util.Weightunit `json:"preferred_unit" binding:"weight_unit"`
 }
 
 func (server *Server) createUserProfile(ctx *gin.Context) {
@@ -48,7 +49,7 @@ func (server *Server) createUserProfile(ctx *gin.Context) {
 		Gender:        req.Gender,
 		HeightCm:      req.HeightCm,
 		HeightFtIn:    req.HeightFtIn,
-		PreferredUnit: req.PreferredUnit,
+		PreferredUnit: db.Weightunit(req.PreferredUnit),
 	}
 	userProfile, err := server.store.CreateUserProfile(ctx, arg)
 
@@ -116,7 +117,7 @@ func (server *Server) updateUserProfile(ctx *gin.Context) {
 		Gender:        req.Gender,
 		HeightCm:      req.HeightCm,
 		HeightFtIn:    req.HeightFtIn,
-		PreferredUnit: req.PreferredUnit,
+		PreferredUnit: db.Weightunit(req.PreferredUnit),
 	}
 
 	userProfile, err := server.store.UpdateUserProfile(ctx, arg)

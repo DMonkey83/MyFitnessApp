@@ -8,10 +8,10 @@ import (
 )
 
 type createExerciseSetRequest struct {
-	ExerciseLogID        int64 `json:"exercise_log_id"`
-	SetNumber            int32 `json:"set_number"`
-	WeightLifted         int32 `json:"weight_lifted"`
-	RepetitionsCompleted int32 `json:"repetitions_completed"`
+	ExerciseLogID        int64 `json:"exercise_log_id" binding:"required"`
+	SetNumber            int32 `json:"set_number" binding:"required"`
+	WeightLifted         int32 `json:"weight_lifted" binding:"required"`
+	RepetitionsCompleted int32 `json:"repetitions_completed" binding:"required"`
 }
 
 type getExerciseSetRequest struct {
@@ -22,6 +22,12 @@ type updateExerciseSetRequest struct {
 	SetID                int64 `json:"set_id"`
 	WeightLifted         int32 `json:"weight_lifted"`
 	RepetitionsCompleted int32 `json:"repetitions_completed"`
+}
+
+type listExerciseSetsRequest struct {
+	Limit         int32 `form:"limit" binding:"required,min=1"`
+	Offset        int32 `form:"offset" binding:"required,min=5,max=10"`
+	ExerciseLogID int64 `form:"exercise_log_id" binding:"required"`
 }
 
 func (server *Server) createExerciseSet(ctx *gin.Context) {
@@ -93,4 +99,24 @@ func (server *Server) updateExerciseSet(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, set)
+}
+
+func (server *Server) listAllExerciseLogSets(ctx *gin.Context) {
+	var req listExerciseSetsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+
+	arg := db.ListExerciseSetsParams{
+		Limit:         req.Limit,
+		Offset:        (req.Offset - 1) * req.Limit,
+		ExerciseLogID: req.ExerciseLogID,
+	}
+	exercises, err := server.store.ListExerciseSets(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, exercises)
 }

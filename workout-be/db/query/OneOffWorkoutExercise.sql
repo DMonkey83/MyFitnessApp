@@ -11,11 +11,11 @@ RETURNING *;
 -- name: GetOneOffWorkoutExercise :one
 SELECT *
 FROM OneOffWorkoutExercise
-WHERE id = $1;
+WHERE id = $1 AND workout_id = $2;
 
 -- name: DeleteOneOffWorkoutExercise :exec
 DELETE FROM OneOffWorkoutExercise
-WHERE id = $1;
+WHERE id = $1 AND workout_id = $2;
 
 -- name: UpdateOneOffWorkoutExercise :one
 UPDATE OneOffWorkoutExercise
@@ -25,7 +25,8 @@ RETURNING *;
 
 -- name: ListAllOneOffWorkoutExercises :many
 SELECT *
-FROM AvailablePlanExercises
+FROM OneOffWorkoutExercise
+WHERE workout_id = $1
 ORDER BY exercise_name -- You can change the ORDER BY clause to order by a different column if needed
-LIMIT $1
-OFFSET $2;
+LIMIT $2
+OFFSET $3;

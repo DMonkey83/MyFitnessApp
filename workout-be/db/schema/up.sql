@@ -99,9 +99,9 @@ CREATE TABLE IF NOT EXISTS AvailableWorkoutPlans (
     plan_id BIGSERIAL PRIMARY KEY,
     plan_name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL DEFAULT(''),
-    goal WorkoutGoalEnum,
-    difficulty Difficulty,
-    is_public Visibility,
+    goal WorkoutGoalEnum NOT NULL DEFAULT('Lose Weight'),
+    difficulty Difficulty NOT NULL DEFAULT('Light'),
+    is_public Visibility NOT NULL DEFAULT('Private'),
     created_at timestamptz NOT NULL DEFAULT(now()),
     updated_at timestamptz NOT NULL DEFAULT(now()),
     creator_username VARCHAR(255) REFERENCES "User"(username) NOT NULL
