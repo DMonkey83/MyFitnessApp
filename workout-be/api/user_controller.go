@@ -1,12 +1,14 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	db "github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
 	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // createUserRequest struct  
@@ -27,6 +29,7 @@ type userResponse struct {
 	Username          string    `json:"username"`
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
 }
 
 // newUserResponse function  
@@ -35,13 +38,18 @@ func newUserResponse(user db.User) userResponse {
 		Username:          user.Username,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
 	}
 }
 
 // loginUserResponse struct  
 type loginUserResponse struct {
-	AccessToken string       `json:"access_token"`
-	User        userResponse `json:"user"`
+	SessionID             uuid.UUID    `json:"session_id"`
+	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
+	User                  userResponse `json:"user"`
 }
 
 // createUser method  
@@ -83,6 +91,10 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	user, err := server.store.GetUser(ctx, req.Username)
 	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, ErrorResponse(err))
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
@@ -93,7 +105,15 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, err := server.tokenMaker.CreateToken(
+	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
+		user.Username,
+		server.config.AccessTokenDuration,
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		return
+	}
+	refreshToken, refresherPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
 		server.config.AccessTokenDuration,
 	)
@@ -102,6 +122,16 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
+	session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
+		ID:           refresherPayload.ID,
+		Username:     user.Username,
+		RefreshToken: refreshToken,
+		UserAgent:    ctx.Request.UserAgent(),
+		ClientIp:     ctx.ClientIP(),
+		IsBlocked:    false,
+		ExpiresAt:    refresherPayload.ExpiredAt,
+	})
+
 	loginUesr := db.User{
 		Username:          user.Username,
 		Email:             user.Email,
@@ -109,8 +139,12 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	rsp := loginUserResponse{
-		AccessToken: accessToken,
-		User:        newUserResponse(loginUesr),
+		SessionID:             session.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refresherPayload.ExpiredAt,
+		User:                  newUserResponse(loginUesr),
 	}
 
 	ctx.JSON(http.StatusOK, rsp)

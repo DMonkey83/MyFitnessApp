@@ -1,11 +1,15 @@
 package api
 
 import (
+	"crypto/ed25519"
+	"encoding/pem"
 	"fmt"
+	"os"
 
 	"github.com/DMonkey83/MyFitnessApp/workout-be/config"
 	db "github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
 	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -20,7 +24,27 @@ type Server struct {
 
 // NewServer function
 func NewServer(config config.Config, store db.Store) (*Server, error) {
-	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	privateKey, publicKey, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		panic(err)
+	}
+
+	// Save the private key to a file (keep this secure)
+	privateFile, err := os.Create("private.pem")
+	if err != nil {
+		panic(err)
+	}
+	defer privateFile.Close()
+	pem.Encode(privateFile, &pem.Block{Type: "PRIVATE KEY", Bytes: privateKey})
+
+	// Save the public key to a file (you can share this)
+	publicFile, err := os.Create("public.pem")
+	if err != nil {
+		panic(err)
+	}
+	defer publicFile.Close()
+	pem.Encode(publicFile, &pem.Block{Type: "PUBLIC KEY", Bytes: publicKey})
+	tokenMaker, err := token.NewPasetoMaker(ed25519.PublicKey(config.TokenKey))
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
@@ -47,6 +71,16 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 }
 
 func (server *Server) Start(address string) error {
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000"} // Replace with your frontend's URL
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+
+	server.router.Use(cors.New(config))
+	server.router.OPTIONS("/*path", func(c *gin.Context) {
+		c.Status(204)
+	})
+
 	return server.router.Run(address)
 }
 

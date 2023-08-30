@@ -5,10 +5,11 @@ import "github.com/gin-gonic/gin"
 func (server *Server) SetupRouter() {
 	router := gin.Default()
 	router.POST("/users", server.createUser)
-	router.POST("/users/login", server.loginUser)
+	router.POST("/api/users/login", server.loginUser)
+	router.POST("tokens/renew_access", server.renewAccessToken)
 
 	// Login
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes := router.Group("/api/").Use(authMiddleware(server.tokenMaker))
 
 	// userProfiles
 	authRoutes.POST("/userProfiles", server.createUserProfile)

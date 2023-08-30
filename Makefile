@@ -13,4 +13,10 @@ test:
 server:
 	cd workout-be && go run main.go
 
-.PHONY: migrateup migratedown sqlc test
+dbdocs:
+	cd workout-be && dbdocs build loc doc/db.dbml
+
+dbschema:
+	cd workout-be && dbml2sql --postgres - doc/schema.sql doc/db.dbml
+
+.PHONY: migrateup migratedown sqlc test dbdocs dbschema
