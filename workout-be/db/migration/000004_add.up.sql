@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS AvailableWorkoutPlans (
     plan_name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL DEFAULT(''),
     goal WorkoutGoalEnum NOT NULL DEFAULT('Lose Weight'),
-    difficulty Difficulty NOT NULL DEFAULT('Light'),
+    difficulty Difficulty NOT NULL DEFAULT('Beginner'),
     is_public Visibility NOT NULL DEFAULT('Private'),
     created_at timestamptz NOT NULL DEFAULT(now()),
     updated_at timestamptz NOT NULL DEFAULT(now()),
