@@ -90,3 +90,21 @@ func TestDeleteWeightEntry(t *testing.T) {
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, entry2)
 }
+
+func TestListWeightEntries(t *testing.T) {
+	lastEntry := CreateRandomWeightEntry(t)
+	arg := ListWeightEntriesParams{
+		Username: lastEntry.Username,
+		Limit:    5,
+		Offset:   0,
+	}
+
+	entries, err := testStore.ListWeightEntries(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, entries)
+
+	for _, entry := range entries {
+		require.NotEmpty(t, entry)
+		require.Equal(t, lastEntry.Username, entry.Username)
+	}
+}

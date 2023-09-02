@@ -71,7 +71,6 @@ func (server *Server) createUser(ctx *gin.Context) {
 		Email:        req.Email,
 	}
 	user, err := server.store.CreateUser(ctx, arg)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
@@ -131,6 +130,10 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		IsBlocked:    false,
 		ExpiresAt:    refresherPayload.ExpiredAt,
 	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		return
+	}
 
 	loginUesr := db.User{
 		Username:          user.Username,
@@ -138,7 +141,6 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		PasswordChangedAt: user.PasswordChangedAt,
 	}
 
-	ctx.SetCookie("access_token", accessToken, 900, "/", "localhsot", false, false)
 	rsp := loginUserResponse{
 		SessionID:             session.ID,
 		AccessToken:           accessToken,

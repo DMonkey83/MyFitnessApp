@@ -117,3 +117,21 @@ func TestDeleteWorkoutLog(t *testing.T) {
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, wlog2)
 }
+
+func TestListWorkoutsLogs(t *testing.T) {
+	lastWorkout := CreateRandomWorkoutLog(t)
+	arg := ListWorkoutLogsParams{
+		PlanID: lastWorkout.PlanID,
+		Limit:  5,
+		Offset: 0,
+	}
+
+	workouts, err := testStore.ListWorkoutLogs(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, workouts)
+
+	for _, workout := range workouts {
+		require.NotEmpty(t, workout)
+		require.Equal(t, lastWorkout.PlanID, workout.PlanID)
+	}
+}

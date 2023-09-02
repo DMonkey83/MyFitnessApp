@@ -64,7 +64,6 @@ func TestUpdateSet(t *testing.T) {
 	require.Equal(t, arg.SetNumber, set2.SetNumber)
 	require.NoError(t, err)
 	require.NotEmpty(t, set2)
-
 }
 
 func TestDeleteSet(t *testing.T) {
@@ -76,4 +75,26 @@ func TestDeleteSet(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, set2)
+}
+
+func TestSet(t *testing.T) {
+	lastSet := CreateRandomSet(t)
+	for i := 0; i < 10; i++ {
+		lastSet = CreateRandomSet(t)
+	}
+
+	arg := ListSetsParams{
+		ExerciseName: lastSet.ExerciseName,
+		Limit:        5,
+		Offset:       0,
+	}
+
+	exercises, err := testStore.ListSets(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, exercises)
+
+	for _, exercise := range exercises {
+		require.NotEmpty(t, exercise)
+		require.Equal(t, lastSet.ExerciseName, exercise.ExerciseName)
+	}
 }
