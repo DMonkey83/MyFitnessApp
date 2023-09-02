@@ -1,13 +1,9 @@
 import axios from "axios";
 import { BaseUrl, PublicKey } from "@/constants";
 import { UserLoginDataResponseProps, UserLoginProps, UserLoginResponseProps, UserProps, UserResponseDataProps, UserResponseProps } from "@/types/userType";
-import { verifyPasetoToken } from "@/util/verifyPasetoToken";
 
 const api = axios.create({
   baseURL: process.env.BaseUrl,
-  headers: {
-
-  }
 })
 
 

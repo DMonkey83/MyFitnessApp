@@ -61,7 +61,6 @@ func TestUpdateExercise(t *testing.T) {
 	require.Equal(t, arg.EquipmentRequired, ex2.EquipmentRequired)
 	require.Equal(t, arg.Description, ex2.Description)
 	require.Equal(t, arg.MuscleGroupName, ex2.MuscleGroupName)
-
 }
 
 func TestDeleteExercise(t *testing.T) {
@@ -73,4 +72,45 @@ func TestDeleteExercise(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, ex2)
+}
+
+func TestListExercises(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		CreateRandomExercise(t)
+	}
+
+	arg := ListAllExercisesParams{
+		Limit:  5,
+		Offset: 0,
+	}
+
+	exercises, err := testStore.ListAllExercises(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, exercises)
+
+	for _, exercise := range exercises {
+		require.NotEmpty(t, exercise)
+	}
+}
+
+func TestEquipmentExercises(t *testing.T) {
+	var lastAccount Exercise
+	for i := 0; i < 10; i++ {
+		lastAccount = CreateRandomExercise(t)
+	}
+
+	arg := ListEquipmentExercisesParams{
+		EquipmentRequired: EquipmenttypeBarbell,
+		Limit:             5,
+		Offset:            0,
+	}
+
+	exercises, err := testStore.ListEquipmentExercises(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, exercises)
+
+	for _, exercise := range exercises {
+		require.NotEmpty(t, exercise)
+		require.Equal(t, lastAccount.EquipmentRequired, exercise.EquipmentRequired)
+	}
 }

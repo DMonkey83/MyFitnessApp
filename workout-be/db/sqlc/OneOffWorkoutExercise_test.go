@@ -9,7 +9,6 @@ import (
 )
 
 func CreateRandomOneOffWorkoutExercise(t *testing.T) Oneoffworkoutexercise {
-
 	exercise := CreateRandomExercise(t)
 	workout := CreateRandomWorkout(t)
 	arg := CreateOneOffWorkoutExerciseParams{
@@ -72,7 +71,6 @@ func TestUpdateOffWorkoutExercise(t *testing.T) {
 	require.Equal(t, arg.Description, ex2.Description)
 	require.Equal(t, arg.MuscleGroupName, ex2.MuscleGroupName)
 	require.Equal(t, arg.WorkoutID, ex2.WorkoutID)
-
 }
 
 func TestDeleteOffWorkoutExercise(t *testing.T) {
@@ -92,4 +90,26 @@ func TestDeleteOffWorkoutExercise(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, ex2)
+}
+
+func TestListOneOffExercises(t *testing.T) {
+	var lastExercise Oneoffworkoutexercise
+	for i := 0; i < 10; i++ {
+		lastExercise = CreateRandomOneOffWorkoutExercise(t)
+	}
+
+	arg := ListAllOneOffWorkoutExercisesParams{
+		WorkoutID: lastExercise.WorkoutID,
+		Limit:     5,
+		Offset:    0,
+	}
+
+	exercises, err := testStore.ListAllOneOffWorkoutExercises(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, exercises)
+
+	for _, exercise := range exercises {
+		require.NotEmpty(t, exercise)
+		require.Equal(t, lastExercise.WorkoutID, exercise.WorkoutID)
+	}
 }

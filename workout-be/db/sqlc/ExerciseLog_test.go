@@ -75,7 +75,6 @@ func TestUpdateExerciseLog(t *testing.T) {
 	require.Equal(t, arg.RepetitionsCompleted, ex2.RepetitionsCompleted)
 	require.Equal(t, arg.WeightLifted, ex2.WeightLifted)
 	require.Equal(t, arg.Notes, ex2.Notes)
-
 }
 
 func TestDeleteExerciseLog(t *testing.T) {
@@ -87,4 +86,26 @@ func TestDeleteExerciseLog(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, ex2)
+}
+
+func TestListExerciseLogs(t *testing.T) {
+	lastLog := CreateRandomExerciseLog(t)
+	for i := 0; i < 10; i++ {
+		lastLog = CreateRandomExerciseLog(t)
+	}
+
+	arg := ListExerciseLogParams{
+		LogID:  lastLog.LogID,
+		Limit:  5,
+		Offset: 0,
+	}
+
+	exercises, err := testStore.ListExerciseLog(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, exercises)
+
+	for _, exercise := range exercises {
+		require.NotEmpty(t, exercise)
+		require.Equal(t, lastLog.LogID, exercise.LogID)
+	}
 }

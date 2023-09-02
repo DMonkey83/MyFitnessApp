@@ -30,7 +30,7 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 	}
 
 	// Save the private key to a file (keep this secure)
-	privateFile, err := os.Create("private.pem")
+	privateFile, err := os.Create("tls/private.pem")
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +38,7 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 	pem.Encode(privateFile, &pem.Block{Type: "PRIVATE KEY", Bytes: privateKey})
 
 	// Save the public key to a file (you can share this)
-	publicFile, err := os.Create("public.pem")
+	publicFile, err := os.Create("tls/public.pem")
 	if err != nil {
 		panic(err)
 	}
@@ -75,6 +75,8 @@ func (server *Server) Start(address string) error {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000"} // Replace with your frontend's URL
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"X-Requested-With", "Content-Type", "Authorization", "Access-Control-Allow-Credentials", "Access-Control-Allow-Origin"}
+	config.AllowCredentials = true
 
 	server.router.Use(cors.New(config))
 	server.router.OPTIONS("/*path", func(c *gin.Context) {

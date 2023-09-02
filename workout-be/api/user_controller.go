@@ -138,6 +138,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		PasswordChangedAt: user.PasswordChangedAt,
 	}
 
+	ctx.SetCookie("access_token", accessToken, 900, "/", "localhsot", false, false)
 	rsp := loginUserResponse{
 		SessionID:             session.ID,
 		AccessToken:           accessToken,
