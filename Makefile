@@ -1,7 +1,30 @@
+DB_URL=postgresql://root:secret@localhost:5433/workout?sslmode=disable
+
+network:
+	cd workout-be && docker network create fitness-network
+
+postgres:
+	cd workout-be && docker run --name postgres --network fitness-network -p 5433:5433 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:15.4-alpine3.18
+
+mysql:
+	cd workout-be && docker run --name mysql8 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=secret -d mysql:8
+
+createdb:
+	cd workout-be && docker exec -it postgres createdb --username=root --owner=root workout
+
+dropdb:
+	cd workout-be && docker exec -it postgres dropdb workout
+
 migrateup:
-	migrate -path workout-be/db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose up
+	migrate -path workout-be/db/migration -database "$(DB_URL)" -verbose up
 
 migratedown:
+	migrate -path db/migration -database "$(DB_URL)" -verbose down
+	
+migrateuplocal:
+	migrate -path workout-be/db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose up
+
+migratedownlocal:
 	migrate -path db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose down
 
 sqlc:
