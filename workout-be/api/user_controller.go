@@ -74,6 +74,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolation {
 			ctx.JSON(http.StatusForbidden, ErrorResponse(err))
+			return
 		}
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
