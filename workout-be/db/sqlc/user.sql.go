@@ -7,11 +7,10 @@ package db
 
 import (
 	"context"
-	"time"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO "User" (
+INSERT INTO users (
   username, 
   email, 
   password_hash)
@@ -39,7 +38,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM "User"
+DELETE FROM users
 WHERE username = $1
 `
 
@@ -49,32 +48,25 @@ func (q *Queries) DeleteUser(ctx context.Context, username string) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT username, email, password_hash, password_changed_at
-FROM "User"
-WHERE username = $1
+SELECT username, email, password_hash, password_changed_at, created_at FROM users
+WHERE username = $1 LIMIT 1
 `
 
-type GetUserRow struct {
-	Username          string    `json:"username"`
-	Email             string    `json:"email"`
-	PasswordHash      string    `json:"password_hash"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-}
-
-func (q *Queries) GetUser(ctx context.Context, username string) (GetUserRow, error) {
+func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, username)
-	var i GetUserRow
+	var i User
 	err := row.Scan(
 		&i.Username,
 		&i.Email,
 		&i.PasswordHash,
 		&i.PasswordChangedAt,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one
-UPDATE "User"
+UPDATE users
 SET email = $2
 WHERE username = $1
 RETURNING username, email, password_hash, password_changed_at, created_at

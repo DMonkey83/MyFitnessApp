@@ -70,7 +70,7 @@ CREATE TYPE FatigueLevel AS ENUM (
 );
 
 -- User Table
-CREATE TABLE IF NOT EXISTS "User" (
+CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(255) NOT NULL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS "User" (
 -- UserProfile Table
 CREATE TABLE IF NOT EXISTS UserProfile (
     user_profile_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) REFERENCES "User"(username) UNIQUE NOT NULL,
+    username VARCHAR(255) REFERENCES users(username) UNIQUE NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     age INT NOT NULL,
     gender VARCHAR(10) NOT NULL,
@@ -100,11 +100,11 @@ CREATE TABLE IF NOT EXISTS AvailableWorkoutPlans (
     plan_name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL DEFAULT(''),
     goal WorkoutGoalEnum NOT NULL DEFAULT('Lose Weight'),
-    difficulty Difficulty NOT NULL DEFAULT('Light'),
+    difficulty Difficulty NOT NULL DEFAULT('Beginner'),
     is_public Visibility NOT NULL DEFAULT('Private'),
     created_at timestamptz NOT NULL DEFAULT(now()),
     updated_at timestamptz NOT NULL DEFAULT(now()),
-    creator_username VARCHAR(255) REFERENCES "User"(username) NOT NULL
+    creator_username VARCHAR(255) REFERENCES users(username) NOT NULL
     -- Other metadata or information about the plan
     -- ...
 );
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS AvailableWorkoutPlans (
 -- WorkoutPlan Table
 CREATE TABLE IF NOT EXISTS WorkoutPlan (
     plan_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) REFERENCES "User"(username) NOT NULL,
+    username VARCHAR(255) REFERENCES users(username) NOT NULL,
     plan_name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT(''),
     start_date timestamptz NOT NULL DEFAULT(now()),
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS WorkoutPlan (
 -- Workout Table
 CREATE TABLE IF NOT EXISTS Workout (
     workout_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) REFERENCES "User"(username) NOT NULL,
+    username VARCHAR(255) REFERENCES users(username) NOT NULL,
     workout_date timestamptz NOT NULL DEFAULT (now()),
     workout_duration VARCHAR(8) NOT NULL DEFAULT (''),
     fatigue_level FatigueLevel NOT NULL DEFAULT('Very Light'), -- User's fatigue level (e.g., 1 to 5)
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS OneOffWorkoutExercise (
 -- WorkoutLog Table (advanced workout log)
 CREATE TABLE IF NOT EXISTS WorkoutLog (
     log_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR REFERENCES "User"(username) NOT NULL,
+    username VARCHAR REFERENCES users(username) NOT NULL,
     plan_id BIGINT REFERENCES WorkoutPlan(plan_id) NOT NULL,
     log_date timestamptz NOT NULL DEFAULT(now()),
     rating Rating NOT NULL DEFAULT('1'),
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS Set (
 -- WeightEntry Table
 CREATE TABLE IF NOT EXISTS WeightEntry (
     weight_entry_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) REFERENCES "User"(username) NOT NULL,
+    username VARCHAR(255) REFERENCES users(username) NOT NULL,
     entry_date timestamptz NOT NULL DEFAULT(now()),
     weight_kg INT NOT NULL DEFAULT(0),
     weight_lb INT NOT NULL DEFAULT(0),
@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS WeightEntry (
 -- MaxRepGoal Table
 CREATE TABLE IF NOT EXISTS MaxRepGoal (
     goal_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) REFERENCES "User"(username) NOT NULL,
+    username VARCHAR(255) REFERENCES users(username) NOT NULL,
     exercise_name VARCHAR(255) REFERENCES Exercise(exercise_name) UNIQUE NOT NULL,
     goal_reps INT NOT NULL,
     notes VARCHAR(255) NOT NULL DEFAULT (''),
@@ -257,7 +257,7 @@ CREATE TABLE IF NOT EXISTS MaxRepGoal (
 -- MaxWeightGoal Table
 CREATE TABLE IF NOT EXISTS MaxWeightGoal (
     goal_id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) REFERENCES "User"(username) NOT NULL,
+    username VARCHAR(255) REFERENCES users(username) NOT NULL,
     exercise_name VARCHAR(255) REFERENCES Exercise(exercise_name) UNIQUE NOT NULL,
     goal_weight INT NOT NULL,
     notes VARCHAR(255) NOT NULL DEFAULT (''),
@@ -275,4 +275,4 @@ CREATE TABLE "sessions" (
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-ALTER TABLE "sessions" ADD FOREIGN KEY ("username") REFERENCES "User" ("username");
+ALTER TABLE "sessions" ADD FOREIGN KEY ("username") REFERENCES users ("username");

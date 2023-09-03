@@ -53,7 +53,7 @@ type Querier interface {
 	GetPlan(ctx context.Context, arg GetPlanParams) (Workoutplan, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetSet(ctx context.Context, setID int64) (Set, error)
-	GetUser(ctx context.Context, username string) (GetUserRow, error)
+	GetUser(ctx context.Context, username string) (User, error)
 	GetUserProfile(ctx context.Context, username string) (GetUserProfileRow, error)
 	GetWeightEntry(ctx context.Context, arg GetWeightEntryParams) (Weightentry, error)
 	GetWorkout(ctx context.Context, workoutID int64) (Workout, error)

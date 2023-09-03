@@ -19,4 +19,7 @@ dbdocs:
 dbschema:
 	cd workout-be && dbml2sql --postgres - doc/schema.sql doc/db.dbml
 
+mock:
+	cd workout-be && mockgen -package mockdb -destination db/mock/store.go github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc Store
+
 .PHONY: migrateup migratedown sqlc test dbdocs dbschema

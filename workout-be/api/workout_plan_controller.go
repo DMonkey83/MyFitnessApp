@@ -16,8 +16,8 @@ type createPlanRequest struct {
 	Username    string               `json:"username" binding:"required"`
 	PlanName    string               `json:"plan_name" binding:"required"`
 	Description string               `json:"description" binding:"required"`
-	StartDate   time.Time            `json:"start_date" binding:"required"`
-	EndDate     time.Time            `json:"end_date" binding:"required"`
+	StartDate   time.Time            `json:"start_date" `
+	EndDate     time.Time            `json:"end_date" `
 	Goal        util.Workoutgoalenum `json:"goal" binding:"required,goal"`
 	Difficulty  util.Difficulty      `json:"difficulty" binding:"required,difficulty"`
 	IsPublic    util.Visibility      `json:"is_public" binding:"required,is_public"`
@@ -59,7 +59,6 @@ func (server *Server) createPlan(ctx *gin.Context) {
 		IsPublic:    db.Visibility(req.IsPublic),
 	}
 	plan, err := server.store.CreatePlan(ctx, arg)
-
 	if err != nil {
 		errorCode := db.ErrorCode(err)
 		if errorCode == db.ForeignKeyViolation || errorCode == db.UniqueViolation {

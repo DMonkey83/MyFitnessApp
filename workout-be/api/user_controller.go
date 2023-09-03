@@ -72,6 +72,9 @@ func (server *Server) createUser(ctx *gin.Context) {
 	}
 	user, err := server.store.CreateUser(ctx, arg)
 	if err != nil {
+		if db.ErrorCode(err) == db.UniqueViolation {
+			ctx.JSON(http.StatusForbidden, ErrorResponse(err))
+		}
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
@@ -112,9 +115,10 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
+
 	refreshToken, refresherPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
-		server.config.AccessTokenDuration,
+		server.config.RefreshTokenDuration,
 	)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -135,19 +139,13 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	loginUesr := db.User{
-		Username:          user.Username,
-		Email:             user.Email,
-		PasswordChangedAt: user.PasswordChangedAt,
-	}
-
 	rsp := loginUserResponse{
 		SessionID:             session.ID,
 		AccessToken:           accessToken,
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refresherPayload.ExpiredAt,
-		User:                  newUserResponse(loginUesr),
+		User:                  newUserResponse(user),
 	}
 
 	ctx.JSON(http.StatusOK, rsp)

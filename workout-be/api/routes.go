@@ -5,8 +5,8 @@ import "github.com/gin-gonic/gin"
 func (server *Server) SetupRouter() {
 	router := gin.Default()
 	router.POST("/users", server.createUser)
-	router.POST("/api/users/login", server.loginUser)
-	router.POST("tokens/renew_access", server.renewAccessToken)
+	router.POST("/users/login", server.loginUser)
+	router.POST("/tokens/renew_access", server.renewAccessToken)
 
 	// Login
 	authRoutes := router.Group("/api/").Use(authMiddleware(server.tokenMaker))
@@ -97,5 +97,4 @@ func (server *Server) SetupRouter() {
 	authRoutes.PATCH("/weightgoal", server.updateMaxWeightGoal)
 
 	server.router = router
-
 }
