@@ -28,7 +28,8 @@ jobs:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout step
+        uses: actions/checkout@v3
 
       - name: Set up Go
         uses: actions/setup-go@v4
