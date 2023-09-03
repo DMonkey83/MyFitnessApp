@@ -52,4 +52,3 @@ mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc Store
 
 .PHONY: migrateuplocal migratedown sqlc test dbdocs dbschema
-		NRbg8foygGuvOTzzzbqg
