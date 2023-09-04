@@ -16,19 +16,19 @@ dropdb:
 	docker exec -it postgres dropdb workout
 
 migrateup:
-	migrate -path workout-be/db/migration -database "$(DB_URL)" -verbose up
+	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
 migratedown:
 	migrate -path db/migration -database "$(DB_URL)" -verbose down
 
 migrateup1:
-	migrate -path workout-be/db/migration -database "postgresql://root:NRbg8foygGuvOTzzzbqg@workout.car9zaosrys5.eu-west-2.rds.amazonaws.com:5432/workout" -verbose up
+	migrate -path db/migration -database "postgresql://root:NRbg8foygGuvOTzzzbqg@workout.car9zaosrys5.eu-west-2.rds.amazonaws.com:5432/workout" -verbose up
 
 migratedown1:
 	migrate -path db/migration -database "postgresql://root:NRbg8foygGuvOTzzzbqg@workout.car9zaosrys5.eu-west-2.rds.amazonaws.com:5432/workout" -verbose down
 	
 migrateuplocal:
-	migrate -path workout-be/db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose up
+	migrate -path db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose up
 
 migratedownlocal:
 	migrate -path db/migration -database "postgresql://evilnis:Lon19ska83@localhost:5432/workout?sslmode=disable" -verbose down
