@@ -48,6 +48,9 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push $REGISTRY/$REPOSITORY
 
+      - name: Update kube config
+        run: aws eks update-kubeconfig --name workout --region eu-west-2
+
       - name: Deploy image to Amazon EKS
         run: |
           kubectl apply -f eks/aws-auth.yaml
