@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: fitness-app-api
-          image: 207946321902.dkr.ecr.eu-west-2.amazonaws.com/myfitnesapp:dae1a6e96d283f6b09e11bc8cf648b441c050b50
+          image: 207946321902.dkr.ecr.eu-west-2.amazonaws.com/myfitnesapp:latest
           ports:
             - containerPort: 8080
