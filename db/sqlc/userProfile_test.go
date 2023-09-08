@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
+	"github.com/DMonkey83/MyFitnessApp/util"
 	"github.com/stretchr/testify/require"
 )
 

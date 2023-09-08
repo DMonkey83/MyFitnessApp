@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/DMonkey83/MyFitnessApp/workout-be/config"
-	db "github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
-	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/DMonkey83/MyFitnessApp/config"
+	db "github.com/DMonkey83/MyFitnessApp/db/sqlc"
+	"github.com/DMonkey83/MyFitnessApp/token"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -55,15 +55,15 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("goal", validGoal)
-		v.RegisterValidation("completion", validCompletion)
-		v.RegisterValidation("rating", validRating)
-		v.RegisterValidation("equipment", validEquipment)
-		v.RegisterValidation("weight_unit", validWeightUnit)
-		v.RegisterValidation("difficulty", validDifficulty)
-		v.RegisterValidation("fatigue_level", validFatigueLevel)
-		v.RegisterValidation("muscle_group", validMuscleGroup)
-		v.RegisterValidation("is_public", validVisibility)
+		v.RegisterValidation("goal", ValidGoal)
+		v.RegisterValidation("completion", ValidCompletion)
+		v.RegisterValidation("rating", ValidRating)
+		v.RegisterValidation("equipment", ValidEquipment)
+		v.RegisterValidation("weight_unit", ValidWeightUnit)
+		v.RegisterValidation("difficulty", ValidDifficulty)
+		v.RegisterValidation("fatigue_level", ValidFatigueLevel)
+		v.RegisterValidation("muscle_group", ValidMuscleGroup)
+		v.RegisterValidation("is_public", ValidVisibility)
 	}
 
 	server.SetupRouter()

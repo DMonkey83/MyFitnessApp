@@ -11,9 +11,9 @@ import (
 	"reflect"
 	"testing"
 
-	mockdb "github.com/DMonkey83/MyFitnessApp/workout-be/db/mock"
-	db "github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
-	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
+	mockdb "github.com/DMonkey83/MyFitnessApp/db/mock"
+	db "github.com/DMonkey83/MyFitnessApp/db/sqlc"
+	"github.com/DMonkey83/MyFitnessApp/util"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"

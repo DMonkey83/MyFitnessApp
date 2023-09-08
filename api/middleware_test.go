@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/DMonkey83/MyFitnessApp/token"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

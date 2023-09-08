@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	db "github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
+	db "github.com/DMonkey83/MyFitnessApp/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 

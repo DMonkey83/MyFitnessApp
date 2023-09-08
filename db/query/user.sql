@@ -16,8 +16,11 @@ WHERE username = $1;
 
 -- name: UpdateUser :one
 UPDATE users
-SET email = $2
-WHERE username = $1
+SET 
+email = COALESCE(sqlc.narg(email),email),
+password_hash = COALESCE(sqlc.narg(password_hash),password_hash)
+WHERE 
+username = @username
 RETURNING *;
 
 

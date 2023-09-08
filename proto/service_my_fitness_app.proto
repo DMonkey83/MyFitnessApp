@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/api/annotations.proto";
+import "rpc_create_user.proto";
+import "rpc_login_user.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/DMonkey83/MyFitnessApp/pb";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info : {title : "Fitness App API";
+version : "1.1";
+contact : {
+name:
+  "Einars Vilnis";
+url:
+  "https://github.com/DMonkey83";
+email:
+  "vilniseinars@gmail.com";
+};
+}
+;
+}
+;
+
+service MyFitnessApp {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post : "/v1/create_user"
+      body : "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description : "Use This API to crate a new user"
+      summary : "Create User"
+    };
+  }
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
+    option (google.api.http) = {
+      post : "/v1/login_user"
+      body : "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description : "Use This API to login a user and get an access & refresh "
+                    "token"
+      summary : "Create User"
+    };
+  }
+}

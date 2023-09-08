@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/DMonkey83/MyFitnessApp/workout-be/token"
+	"github.com/DMonkey83/MyFitnessApp/token"
 	"github.com/gin-gonic/gin"
 )
 
