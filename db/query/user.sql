@@ -18,7 +18,8 @@ WHERE username = $1;
 UPDATE users
 SET 
 email = COALESCE(sqlc.narg(email),email),
-password_hash = COALESCE(sqlc.narg(password_hash),password_hash)
+password_hash = COALESCE(sqlc.narg(password_hash),password_hash),
+password_changed_at = COALESCE(sqlc.narg(password_changed_at),password_changed_at)
 WHERE 
 username = @username
 RETURNING *;

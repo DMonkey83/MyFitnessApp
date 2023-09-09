@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Fitness App API",
-    "version": "1.1",
+    "version": "1.2",
     "contact": {
       "name": "Einars Vilnis",
       "url": "https://github.com/DMonkey83",
@@ -88,6 +88,40 @@
           "MyFitnessApp"
         ]
       }
+    },
+    "/v1/update_user": {
+      "patch": {
+        "summary": "Update User",
+        "description": "Use This API to update an existing user",
+        "operationId": "MyFitnessApp_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MyFitnessApp"
+        ]
+      }
     }
   },
   "definitions": {
@@ -146,6 +180,28 @@
         "refreshTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbUpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "pbUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/pbUser"
         }
       }
     },

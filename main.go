@@ -42,8 +42,7 @@ func main() {
 
 	runDBMigration(config.MigrationURL, config.DBSource)
 	store := db.NewStore(connPool)
-	go runGatewayServer(config, store)
-	runGrpcServer(config, store)
+	runGinServer(config, store)
 }
 
 func runDBMigration(migrationURL string, dbSource string) {
