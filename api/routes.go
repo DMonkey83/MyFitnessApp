@@ -3,13 +3,14 @@ package api
 import "github.com/gin-gonic/gin"
 
 func (server *Server) SetupRouter() {
-	router := gin.Default()
-	router.POST("/users", server.createUser)
-	router.POST("/users/login", server.loginUser)
-	router.POST("/tokens/renew_access", server.renewAccessToken)
+	router := gin.New()
+	routes := router.Use(loggingMiddleware())
+	routes.POST("/users", server.createUser)
+	routes.POST("/users/login", server.loginUser)
+	routes.POST("/tokens/renew_access", server.renewAccessToken)
 
 	// Login
-	authRoutes := router.Group("/api/").Use(authMiddleware(server.tokenMaker))
+	authRoutes := router.Group("/api/").Use(authMiddleware(server.tokenMaker), loggingMiddleware())
 
 	// userProfiles
 	authRoutes.POST("/userProfiles", server.createUserProfile)

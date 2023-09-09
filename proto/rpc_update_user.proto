@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+
+import "user.proto";
+
+option go_package = "github.com/DMonkey83/MyFitnessApp/pb";
+
+message UpdateUserRequest {
+  string username = 1;
+  optional string email = 2;
+  optional string password = 3;
+}
+
+message UpdateUserResponse { User user = 1; }

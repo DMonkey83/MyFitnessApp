@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	db "github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc"
-	"github.com/DMonkey83/MyFitnessApp/workout-be/util"
+	db "github.com/DMonkey83/MyFitnessApp/db/sqlc"
+	"github.com/DMonkey83/MyFitnessApp/util"
 	"github.com/gin-gonic/gin"
 )
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/DMonkey83/MyFitnessApp/workout-be/config"
+	"github.com/DMonkey83/MyFitnessApp/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

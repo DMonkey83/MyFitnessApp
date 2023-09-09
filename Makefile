@@ -37,7 +37,7 @@ sqlc:
 	sqlc generate
 
 test: 
-	go test -v -cover ./...
+	go test -v -cover -short ./...
 
 server:
 	go run main.go
@@ -49,6 +49,19 @@ dbschema:
 	dbml2sql --postgres - doc/schema.sql doc/db.dbml
 
 mock:
-	mockgen -package mockdb -destination db/mock/store.go github.com/DMonkey83/MyFitnessApp/workout-be/db/sqlc Store
+	mockgen -package mockdb -destination db/mock/store.go github.com/DMonkey83/MyFitnessApp/db/sqlc Store
 
-.PHONY: migrateuplocal migratedown sqlc test dbdocs dbschema
+proto:
+	rm -f pb/*.go
+	rm -f doc/swagger/*.swagger.json
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+	--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+	--grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
+	--openapiv2_out=doc/swagger --openapiv2_opt=allow_merge=true,merge_file_name=fitness_app \
+	proto/*.proto
+	statik -src=./doc/swagger -dest=./doc
+
+evans:
+	evans --host localhost --port 9090 -r repl
+
+.PHONY: migrateuplocal migrateup migrateup1 migratedown sqlc test dbdocs dbschema proto evans
