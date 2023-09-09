@@ -14,7 +14,7 @@ import (
 
 func newTestServer(t *testing.T, store db.Store) *Server {
 	config := config.Config{
-		TokenKey:            util.GetRandomUsername(32),
+		TokenSymmetricKey:   util.GetRandomUsername(32),
 		AccessTokenDuration: time.Minute,
 	}
 
