@@ -1,9 +1,12 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func (server *Server) SetupRouter() {
 	router := gin.New()
+
 	routes := router.Use(loggingMiddleware())
 	routes.POST("/users", server.createUser)
 	routes.POST("/users/login", server.loginUser)
